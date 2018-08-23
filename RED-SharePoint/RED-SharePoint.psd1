@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.2'
+ModuleVersion = '1.0.0.14'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -57,7 +57,8 @@ Description = 'SharePoint PowerShell Module, Codename: RED'
 # RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @(".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1")
+ScriptsToProcess = @(".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1",
+                     ".\Utility\Scripts\Import-SharePointOnlinePowerShellModule.ps1")
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -67,7 +68,18 @@ ScriptsToProcess = @(".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1")
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList.psm1",
-                  ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1")
+                  ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
+                  ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
+                  ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
+                  ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
+                  ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
+                  ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
+                  ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",
+                  ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",
+                  ".\Cmdlets\New-SPVersionReport\New-SPVersionReport.psm1",
+                  ".\Cmdlets\Set-SPLibraryVersionConfiguration\Set-SPLibraryVersionConfiguration.psm1",
+                  ".\Cmdlets\Save-SPLibraryVersionConfiguration\Save-SPLibraryVersionConfiguration.psm1"
+                  )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = '*'
