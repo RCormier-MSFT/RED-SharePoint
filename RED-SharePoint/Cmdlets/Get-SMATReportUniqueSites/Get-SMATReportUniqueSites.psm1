@@ -8,7 +8,7 @@ function Get-SMATReportUniqueSites
 {
     [cmdletbinding()]
     param(
-    [parameter(Mandatory=$True, position=0)]
+    [parameter(Mandatory=$True, position=0, HelpMessage="Provide a SMAT checked out files report for this parameter")]
     [ValidateScript({if($_.localpath.endswith("csv")){$True}else{throw "`r`n`'InputFile`' must be a csv file"}})]
     [URI]$InputFile
     )

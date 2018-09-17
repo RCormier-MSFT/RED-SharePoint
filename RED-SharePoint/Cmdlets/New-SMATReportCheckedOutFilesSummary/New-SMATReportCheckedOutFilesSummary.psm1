@@ -45,20 +45,70 @@ function New-SMATReportCheckedOutFilesSummary
            [Array]$Files = $AllItems | Where-Object {$_.SiteURL -eq $Site}
             ForEach($File in $Files)
             {
-                [DateTime]$CheckOutDate = $SPSite.rootweb.getfile($File.File).checkedoutdate
                 $FileInformation = New-Object System.Object
                 $FileInformation | Add-Member -MemberType NoteProperty -Name "SiteURL" -Value $File.SiteURL
                 $FileInformation | Add-Member -MemberType NoteProperty -Name "File URL" -Value $File.File
                 $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out To" -Value $File.CheckedOutUser
-                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value $CheckOutDate
-                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($CheckOutDate).Days)
-                if((get-date).Subtract($CheckOutDate).days -gt 60)
+                Try
                 {
-                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "True"
+                    [DateTime]$CheckOutDate = $SPSite.rootweb.getfile($File.File).checkedoutdate
+                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value $CheckOutDate
+                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($CheckOutDate).Days)
+                    if((get-date).Subtract($CheckOutDate).days -gt $ReportThresholdInDays)
+                    {
+                        $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "True"
+                    }
+                    else
+                    {
+                        $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False"
+                    }
                 }
-                else
+                Catch
                 {
-                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False"
+                    $CheckedOutFile = $SPSite.rootweb.GetFile($File.File)
+                    if($CheckedOutFile.InDocumentLibrary -eq "True")
+                    {
+                        if((($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Select-Object -ExpandProperty url) -imatch $CheckedOutFile.ServerRelativeURL.Substring(1))
+                        {
+                            $CheckedOutFileInfo = ($CheckedOutFile.web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeURL.Substring(1)}
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value ($CheckedOutFileInfo.TimeLastModified) -Force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($CheckedOutFileInfo.TimeLastModified).Days) -Force
+                            if((get-date).Subtract($CheckedOutFileInfo.TimeLastModified).days -gt $ReportThresholdInDays)
+                            {
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "True" -Force
+                            }
+                            else
+                            {
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False" -Force
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach($web in $CheckedOutFile.web.webs)
+                        {
+                            $lists = $web.lists | Where-Object {$_ -is [Microsoft.SharePoint.SPDocumentLibrary]}
+                            foreach($list in $lists)
+                            {
+                                $FoundFile = $list.CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeurl.substring(1)}
+                                if($FoundFile)
+                                {
+                                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value ($FoundFile.TimeLastModified) -Force
+                                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($FoundFile.TimeLastModified).Days) -Force
+                                    if((get-date).Subtract($FoundFile.TimeLastModified).days -gt $ReportThresholdInDays)
+                                    {
+                                        $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "True" -Force
+                                    }
+                                    else
+                                    {
+                                        $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False" -Force
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
                 }
                 $FileReport.Add($FileInformation) | Out-Null
             }

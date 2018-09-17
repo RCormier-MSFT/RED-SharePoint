@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.14'
+ModuleVersion = '1.0.0.15'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -68,17 +68,23 @@ ScriptsToProcess = @(".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1",
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList.psm1",
-                  ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
-                  ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
-                  ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
-                  ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
-                  ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
-                  ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
-                  ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",
-                  ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",
-                  ".\Cmdlets\New-SPVersionReport\New-SPVersionReport.psm1",
-                  ".\Cmdlets\Set-SPLibraryVersionConfiguration\Set-SPLibraryVersionConfiguration.psm1",
-                  ".\Cmdlets\Save-SPLibraryVersionConfiguration\Save-SPLibraryVersionConfiguration.psm1"
+                ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
+                ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
+                ".\cmdlets\Get-SPListMigrationManifestInfo\Get-SPListMigrationManifestInfo.psm1",
+                ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
+                ".\cmdlets\Get-SPWebMigrationManifestInfo\Get-SPWebMigrationManifestInfo.psm1",
+                ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
+                ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
+                ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
+                ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
+                ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",
+                ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",
+                ".\cmdlets\New-SourceSiteMigrationManifest\New-SourceSiteMigrationManifest.psm1",
+                ".\cmdlets\New-SPVersionReport\New-SPVersionReport.psm1",
+                ".\cmdlets\Remove-AllDomainUserProfiles\Remove-AllDomainUserProfiles.psm1",
+                ".\Cmdlets\Rename-SPContentDatabaseServer\Rename-SPContentDatabaseServer.psm1",
+                ".\Cmdlets\Save-SPLibraryVersionConfiguration\Save-SPLibraryVersionConfiguration.psm1",
+                ".\Cmdlets\Set-SPLibraryVersionConfiguration\Set-SPLibraryVersionConfiguration.psm1"
                   )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
