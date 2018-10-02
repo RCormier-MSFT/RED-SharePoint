@@ -18,6 +18,16 @@ function Get-SPWebMigrationManifestInfo
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Title" -Value $SPWeb.Title
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -Value $SPWeb.Url
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Number of Lists" -Value $SPWeb.lists.Count
+    $WebEntry | Add-Member -MemberType NoteProperty -Name "Workflow Associations" -Value $SPWeb.WorkflowAssociations.count
+    if($SPWeb.RootFolder.WelcomePage)
+    {
+        $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -value ($SPWeb.GetFile($SPWeb.RootFolder.WelcomePage).GetLimitedWebPartManager([System.Web.UI.WebControls.Webparts.PersonalizationScope]::Shared).webparts.count)
+    }
+    else
+    {
+        $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -Value "Error retrieving welcome page"
+    }
+
 
     Return $WebEntry
 }

@@ -16,5 +16,6 @@ function Get-SPListMigrationManifestInfo
     $ListEntry | Add-Member -MemberType NoteProperty -name "Type of Entry" -Value "List"
     $ListEntry | Add-Member -MemberType NoteProperty -Name "List Title" -Value $SPList.Title
     $ListEntry | Add-Member -MemberType NoteProperty -name "Number of Items" -Value $SPList.ItemCount
+    $ListEntry | Add-Member -MemberType NoteProperty -Name "Workflows Associated" -value $SPlist.WorkflowAssociations.count
     Return $ListEntry
 }

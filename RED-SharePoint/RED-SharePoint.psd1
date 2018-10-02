@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.15'
+ModuleVersion = '1.0.0.18'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -71,15 +71,21 @@ NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList
                 ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
                 ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
                 ".\cmdlets\Get-SPListMigrationManifestInfo\Get-SPListMigrationManifestInfo.psm1",
+                ".\cmdlets\Get-SPListMigrationValidation\Get-SPListMigrationValidation.psm1",
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
+                ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebMigrationManifestInfo\Get-SPWebMigrationManifestInfo.psm1",
+                ".\cmdlets\Get-SPWebMigrationValidation\Get-SPWebMigrationValidation.psm1",
                 ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
+                ".\cmdlets\Get-UniqueSitesFromSourceSiteMigrationManifest\Get-UniqueSitesFromSourceSiteMigrationManifest.psm1",
                 ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
                 ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
                 ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
                 ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",
                 ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",
                 ".\cmdlets\New-SourceSiteMigrationManifest\New-SourceSiteMigrationManifest.psm1",
+                ".\cmdlets\New-SPMigrationManifestValidationSummary\New-SPMigrationManifestValidationSummary.psm1",
+                ".\cmdlets\New-SPMigrationValidationReportPackage\New-SPMigrationValidationReportPackage.psm1"
                 ".\cmdlets\New-SPVersionReport\New-SPVersionReport.psm1",
                 ".\cmdlets\Remove-AllDomainUserProfiles\Remove-AllDomainUserProfiles.psm1",
                 ".\Cmdlets\Rename-SPContentDatabaseServer\Rename-SPContentDatabaseServer.psm1",

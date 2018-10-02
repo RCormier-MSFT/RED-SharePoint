@@ -5,7 +5,7 @@ Description: This cmdlet will produce a manifest of objects and properties that 
 DependsOn: Get-WebManifest, Get-ListManifest, Get-SiteManifest
 #>
 
-function New-SourceMigrationManifest
+function New-SourceSiteMigrationManifest
 {
     [cmdletbinding(SupportsShouldProcess=$True)]
     param(
@@ -55,18 +55,20 @@ function New-SourceMigrationManifest
 
             $SPSite = Get-SPSite $Site."Source Site URL"
             $SiteEntry = Get-SPSiteMigrationManifestInfo $SPSite
-            $SiteEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SPite."Source Site URL"
+            $SiteEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SPSite."URL"
             $SiteEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -value $Site."Destination Site URL"
             $ReportInformation.Add($SiteEntry) | Out-Null
             foreach ($Web in $SPSite.AllWebs)
             {
                 $WebEntry = Get-SPWebMigrationManifestInfo $Web
                 $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                 $ReportInformation.Add($WebEntry) | Out-Null
                 foreach($list in $web.lists)
                 {
                     $ListEntry = Get-SPListMigrationManifestInfo $list
                     $ListEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                    $ListEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                     $ListEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -value $WebEntry."Web URL"
                     $ReportInformation.Add($ListEntry) | Out-Null
                 }
@@ -77,5 +79,6 @@ function New-SourceMigrationManifest
     end
     {
             $ReportInformation | ConvertTo-Json | out-file $AllParameters["OutputFile"].localpath -Force
+            write-host "Source Site Migration Manifest created at: $($AllParameters["OutputFile"].localpath)" -ForegroundColor Green
     }
 }
