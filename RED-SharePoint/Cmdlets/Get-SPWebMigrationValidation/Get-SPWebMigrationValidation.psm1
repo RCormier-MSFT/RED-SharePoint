@@ -36,7 +36,14 @@ function Get-SPWebMigrationValidation
                 $WebEntry | Add-Member -MemberType NoteProperty -name "Web Title Matching" -value "False"
             }
             $WebEntry | Add-Member -MemberType NoteProperty -name "Source Web Parts on Page" -value $Entry."Web Parts on Page"
-            $WebEntry | add-member -MemberType NoteProperty -Name "Destination Web Parts on Page" -Value (Get-PnPWebPart -ServerRelativePageUrl (Get-PnPHomePage)).count
+            if($WebpartCount = (Get-PnPWebPart -ServerRelativePageUrl (Get-PnPHomePage) -ErrorAction SilentlyContinue).count)
+            {
+                $WebEntry | add-member -MemberType NoteProperty -Name "Destination Web Parts on Page" -Value $WebpartCount
+            }
+            else
+            {
+                $WebEntry | add-member -MemberType NoteProperty -Name "Destination Web Parts on Page" -Value "0"
+            }
             if($WebEntry."Source Web Parts on Page" -eq $WebEntry."Destination Web Parts on Page")
             {
                 $WebEntry | add-member -MemberType NoteProperty -name "Number of Web Parts Matching" -value "True"

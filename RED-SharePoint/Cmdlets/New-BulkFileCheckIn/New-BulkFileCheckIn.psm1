@@ -11,8 +11,7 @@ param(
 [Parameter(HelpMessage="Represents the SPSite to be evaluated" ,Mandatory=$True, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
 [Alias ('URL')]
 [String[]]$Site,
-
-[Parameter(HelpMessage="Represents the check-in comment that will be recorded for all files that are checked in" ,Mandatory=$False)]
+[Parameter(HelpMessage="Represents the check-in comment that will be recorded for all files that are checked in",Mandatory=$False)]
 [String]$AdminMessage="Checked in by administrator"
 )
 

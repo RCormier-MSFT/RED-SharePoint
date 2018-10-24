@@ -39,7 +39,7 @@ function Get-SPSiteMigrationValidation
         }
         else
         {
-            Write-Host "No connection to site $($entry.'Destination Site URL')"
+            Write-Host "No connection to site $($Entry.'Destination Site URL')"
         }
     }
     catch

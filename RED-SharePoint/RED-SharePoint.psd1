@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.18'
+ModuleVersion = '1.0.0.20'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -57,8 +57,11 @@ Description = 'SharePoint PowerShell Module, Codename: RED'
 # RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = @(".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1",
-                     ".\Utility\Scripts\Import-SharePointOnlinePowerShellModule.ps1")
+ScriptsToProcess = @(".\Utility\Scripts\Import-SharePointOnlineCSOM.ps1",
+                     ".\Utility\Scripts\Import-SharePointPNPModule.ps1",
+                     ".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1",
+                     ".\Utility\Scripts\Import-SharePointOnlinePowerShellModule.ps1",
+                     ".\Utility\Scripts\Import-MicrosoftTeamsModule.ps1")
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -71,7 +74,10 @@ NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList
                 ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
                 ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
                 ".\cmdlets\Get-SPListMigrationManifestInfo\Get-SPListMigrationManifestInfo.psm1",
-                ".\cmdlets\Get-SPListMigrationValidation\Get-SPListMigrationValidation.psm1",
+                ".\cmdlets\Get-SPOListMigrationValidation\Get-SPOListMigrationValidation.psm1",
+                ".\cmdlets\Get-SPOListWorkflowAssociations\Get-SPOListWorkflowAssociations.psm1",
+                ".\cmdlets\Get-SPOListWorkflowAssociationValidation\Get-SPOListWorkflowAssociationValidation.psm1",
+                ".\cmdlets\Get-SPOWorkflowServicesManager\Get-SPOWorkflowServicesManager.psm1",
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebMigrationManifestInfo\Get-SPWebMigrationManifestInfo.psm1",
@@ -85,7 +91,8 @@ NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList
                 ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",
                 ".\cmdlets\New-SourceSiteMigrationManifest\New-SourceSiteMigrationManifest.psm1",
                 ".\cmdlets\New-SPMigrationManifestValidationSummary\New-SPMigrationManifestValidationSummary.psm1",
-                ".\cmdlets\New-SPMigrationValidationReportPackage\New-SPMigrationValidationReportPackage.psm1"
+                ".\cmdlets\New-SPMigrationValidationReportPackage\New-SPMigrationValidationReportPackage.psm1",
+                ".\cmdlets\New-SPOClientContext\New-SPOClientContext.psm1",
                 ".\cmdlets\New-SPVersionReport\New-SPVersionReport.psm1",
                 ".\cmdlets\Remove-AllDomainUserProfiles\Remove-AllDomainUserProfiles.psm1",
                 ".\Cmdlets\Rename-SPContentDatabaseServer\Rename-SPContentDatabaseServer.psm1",

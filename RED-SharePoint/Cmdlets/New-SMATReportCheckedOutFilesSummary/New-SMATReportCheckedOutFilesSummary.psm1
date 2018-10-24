@@ -42,7 +42,7 @@ function New-SMATReportCheckedOutFilesSummary
         foreach($Site in $AllSites)
         {
             $SPSite = get-spsite $Site
-           [Array]$Files = $AllItems | Where-Object {$_.SiteURL -eq $Site}
+            [Array]$Files = $AllItems | Where-Object {$_.SiteURL -eq $Site}
             ForEach($File in $Files)
             {
                 $FileInformation = New-Object System.Object
@@ -51,7 +51,7 @@ function New-SMATReportCheckedOutFilesSummary
                 $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out To" -Value $File.CheckedOutUser
                 Try
                 {
-                    [DateTime]$CheckOutDate = $SPSite.rootweb.getfile($File.File).checkedoutdate
+                    [DateTime]$CheckOutDate = $SPSite.rootweb.GetFile($File.File).checkedoutdate
                     $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value $CheckOutDate
                     $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($CheckOutDate).Days)
                     if((get-date).Subtract($CheckOutDate).days -gt $ReportThresholdInDays)

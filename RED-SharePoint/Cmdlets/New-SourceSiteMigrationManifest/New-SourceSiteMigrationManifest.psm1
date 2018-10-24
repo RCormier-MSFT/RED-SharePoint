@@ -53,7 +53,7 @@ function New-SourceSiteMigrationManifest
         foreach($Site in $SitesList)
         {
 
-            $SPSite = Get-SPSite $Site."Source Site URL"
+            $SPSite = Get-SPSite $Site."Source Site URL".Trimend("/")
             $SiteEntry = Get-SPSiteMigrationManifestInfo $SPSite
             $SiteEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SPSite."URL"
             $SiteEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -value $Site."Destination Site URL"
@@ -64,6 +64,17 @@ function New-SourceSiteMigrationManifest
                 $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
                 $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                 $ReportInformation.Add($WebEntry) | Out-Null
+                if($WebEntry.'Has Unique Permissions' -eq "True")
+                {
+                    $WebRoles = New-Object System.Collection.Arraylist
+                    $WebRolesEntries = Get-SPWebRolesMigrationManifestInfo -Web $Web
+                    foreach($WebRole in $WebRolesEntries)
+                    {
+                        $WebRole | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                        $WebRole | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                        $ReportInformation.Add($WebRole) | Out-Null
+                    }
+                }
                 foreach($list in $web.lists)
                 {
                     $ListEntry = Get-SPListMigrationManifestInfo $list

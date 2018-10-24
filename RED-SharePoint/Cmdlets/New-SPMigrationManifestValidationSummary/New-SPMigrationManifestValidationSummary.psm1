@@ -14,6 +14,9 @@ function New-SPMigrationManifestValidationSummary
         if(!(Test-Path $_.localpath)){$True}elseif((Test-Path $_.localpath) -and ($Force)){$True}else{throw "`r`nFile $($_.localpath) already exists.  Use the -Force switch"}
     })]
     [URI]$OutputFile,
+    [parameter(Mandatory=$True, position=2, HelpMessage="Used to indicate which phase of reporting we are performing")]
+    [ValidateSet("Structure", "ItemCount", "Permissions")]
+    [String]$Mode,
     [parameter(Mandatory=$False, position=2, HelpMessage="Supply a credential object to connect to SharePOint Online")]
     [System.Management.Automation.PSCredential]$Credential,
     [parameter(Mandatory=$False, position=3, HelpMessage="Use the -Force switch to overwrite the existing output file")]
@@ -36,56 +39,74 @@ function New-SPMigrationManifestValidationSummary
         {
             if($Entry.'Type of Entry' -eq "Site Collection")
             {
-                $SummaryInfo =  $Entry | Get-SPSiteMigrationValidation -Credential $Credential
-                if($SummaryInfo)
+                if(($Mode -eq "Structure") -or ($Mode -eq "ItemCount"))
                 {
-                    $ValidationSummary.Add($SummaryInfo) | Out-Null
+                    $SummaryInfo =  $Entry | Get-SPSiteMigrationValidation -Credential $Credential
+                    if($SummaryInfo)
+                    {
+                        $ValidationSummary.Add($SummaryInfo) | Out-Null
+                    }
+                    else
+                    {
+                        $ErrorObject = New-Object System.Object
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Site"
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $entry.'Destination Site URL'
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error Processing Site $($Entry.'Destination Site URL')"
+                        $ValidationSummary.Add($ErrorObject) |Out-Null
+                    }
+                    Remove-Variable -Name SummaryInfo
                 }
-                else
-                {
-                    $ErrorObject = New-Object System.Object
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Site"
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $entry.'Destination Site URL'
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error Processing Site $($Entry.'Destination Site URL')"
-                    $ValidationSummary.Add($ErrorObject) |Out-Null
-                }
-                Remove-Variable -Name SummaryInfo
 
             }
             elseif($Entry.'Type of Entry' -eq "Web")
             {
-                $SummaryInfo = $Entry | Get-SPWebMigrationValidation -Credential $Credential
-                if($SummaryInfo)
+                if(($Mode -eq "Structure") -or ($Mode -eq "ItemCount"))
                 {
-                    $ValidationSummary.Add($SummaryInfo) | Out-Null
+                    $SummaryInfo = $Entry | Get-SPWebMigrationValidation -Credential $Credential
+                    if($SummaryInfo)
+                    {
+                        $ValidationSummary.Add($SummaryInfo) | Out-Null
+                    }
+                    else
+                    {
+                        $ErrorObject = New-Object System.Object
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Web"
+                        $ErrorObject | Add-Member -MemberType NoteProperty -name "Destination Web URL" -Value $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error Processing Web $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))"
+                        $ValidationSummary.Add($ErrorObject) |Out-Null
+                    }
+                    Remove-Variable -Name SummaryInfo
                 }
-                else
-                {
-                    $ErrorObject = New-Object System.Object
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Web"
-                    $ErrorObject | Add-Member -MemberType NoteProperty -name "Destination Web URL" -Value $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error Processing Web $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))"
-                    $ValidationSummary.Add($ErrorObject) |Out-Null
-                }
-                Remove-Variable -Name SummaryInfo
+
             }
             elseif($Entry.'Type of Entry' -eq "List")
             {
-                $SummaryInfo = $Entry | Get-SPListMigrationValidation -Credential $Credential
-                if($SummaryInfo)
+                if($Mode = "ItemCount")
                 {
-                    $ValidationSummary.Add($SummaryInfo) | Out-Null
+                    $SummaryInfo = $Entry | Get-SPOListMigrationValidation -Credential $Credential
+                    if($SummaryInfo)
+                    {
+                        $ValidationSummary.Add($SummaryInfo) | Out-Null
+                    }
+                    else
+                    {
+                        $ErrorObject = New-Object System.Object
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -value "List"
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Destination Web URL" -Value $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "List Title" -value $Entry.'List Title'
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error processing list `'$($entry.'List Title')`' in web $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))"
+                        $ValidationSummary.Add($ErrorObject) | Out-Null
+                    }
+                    Remove-Variable -Name SummaryInfo
                 }
-                else
+
+            }
+            elseif($Entry.'Type of Entry' -eq "WorkflowAssociation")
+            {
+                if($Mode = "ItemCount")
                 {
-                    $ErrorObject = New-Object System.Object
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -value "List"
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Destination Web URL" -Value $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "List Title" -value $Entry.'List Title'
-                    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error processing list `'$($entry.'List Title')`' in web $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))"
-                    $ValidationSummary.Add($ErrorObject) | Out-Null
+                    $SummaryInfo = $Entry | Get-SPOListWorkflowAssociationValidation -Credential $Credential
                 }
-                Remove-Variable -Name SummaryInfo
             }
         }
 
