@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.20'
+ModuleVersion = '1.0.0.23'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -80,8 +80,10 @@ NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList
                 ".\cmdlets\Get-SPOWorkflowServicesManager\Get-SPOWorkflowServicesManager.psm1",
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
+                ".\cmdlets\Get-SPWebGroupsMigrationManifestInfo\Get-SPWebGroupsMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPWebMigrationManifestInfo\Get-SPWebMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPWebMigrationValidation\Get-SPWebMigrationValidation.psm1",
+                ".\cmdlets\Get-SPWebRolesMigrationManifestInfo\Get-SPWebRolesMigrationManifestInfo.psm1",
                 ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
                 ".\cmdlets\Get-UniqueSitesFromSourceSiteMigrationManifest\Get-UniqueSitesFromSourceSiteMigrationManifest.psm1",
                 ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",

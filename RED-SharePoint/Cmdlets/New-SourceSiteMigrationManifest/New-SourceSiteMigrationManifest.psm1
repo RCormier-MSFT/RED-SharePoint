@@ -2,7 +2,7 @@
 Author:Roger Cormier
 Company:Microsoft
 Description: This cmdlet will produce a manifest of objects and properties that can be used to validate the success of a migration to Office 365
-DependsOn: Get-WebManifest, Get-ListManifest, Get-SiteManifest
+DependsOn: Get-SPWebMigrationManifestInfo, Get-SPListMigrationManifestInfo, Get-SiteMigrationManifestInfo, Get-SPWebRolesMigrationManifestInfo
 #>
 
 function New-SourceSiteMigrationManifest
@@ -66,14 +66,35 @@ function New-SourceSiteMigrationManifest
                 $ReportInformation.Add($WebEntry) | Out-Null
                 if($WebEntry.'Has Unique Permissions' -eq "True")
                 {
-                    $WebRoles = New-Object System.Collection.Arraylist
-                    $WebRolesEntries = Get-SPWebRolesMigrationManifestInfo -Web $Web
-                    foreach($WebRole in $WebRolesEntries)
+                    if($Web.IsRootWeb)
                     {
-                        $WebRole | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
-                        $WebRole | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
-                        $ReportInformation.Add($WebRole) | Out-Null
+                        $WebRolesEntries = Get-SPWebRolesMigrationManifestInfo -SPWeb $Web
+                        foreach($WebRole in $WebRolesEntries)
+                        {
+                            $WebRole | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                            $WebRole | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                            $ReportInformation.Add($WebRole) | Out-Null
+                        }
+                        $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web
+                        foreach($WebGroup in $WebGroupEntries)
+                        {
+                            $WebGroup | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                            $WebGroup | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                            $ReportInformation.Add($WebGroup) | Out-Null
+                        }
                     }
+                    $AllGroups = $web.groups
+                    foreach($Group in $AllGroups)
+                    {
+                        $GroupEntry = New-Object System.Object
+                        $GroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group Mapping"
+                        $GroupEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                        $GroupEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                        $GroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -Value $Group.Name
+                        $GroupEntry | Add-Member -MemberType NoteProperty -Name "Roles Assigned" -Value ([String]::Join(",", ($Group.Roles | Select-Object -ExpandProperty Name)))
+                        $ReportInformation.Add($GroupEntry) | Out-Null
+                    }
+
                 }
                 foreach($list in $web.lists)
                 {

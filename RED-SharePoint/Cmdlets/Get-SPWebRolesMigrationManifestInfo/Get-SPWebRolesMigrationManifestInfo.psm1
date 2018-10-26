@@ -7,16 +7,17 @@ function Get-SPWebRolesMigrationManifestInfo
     [Microsoft.SharePoint.SPWeb]$SPWeb
     )
     $WebRolesEntries = New-Object System.Collections.ArrayList
-    if($Web.IsRootWeb)
+    if($SPWeb.IsRootWeb)
     {
-        foreach($role in $Web.Roles)
+        foreach($role in $SPWeb.Roles)
         {
             $RoleEntry = New-Object System.Object
             $RoleEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Role"
             $RoleEntry | Add-Member -MemberType NoteProperty -Name "Role Name" -Value "$($Role.Name)"
             $RoleEntry | Add-Member -MemberType NoteProperty -Name "Permission Mask" -Value "$($Role.PermissionMask)"
-            $WebRolesEntries.add($RoleEntry)
+            $WebRolesEntries.add($RoleEntry) | Out-Null
         }
+        Return $WebRolesEntries
     }
     else
     {
