@@ -13,6 +13,7 @@ function Get-SPWebGroupsMigrationManifestInfo
         foreach($Group in $SPWeb.Groups)
         {
             $GroupEntry = New-Object System.Object
+            $GroupEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -Value "$($SPWeb.URL)"
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group"
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -Value "$($Group.Name)"
             $WebGroupsEntries.add($GroupEntry) | Out-Null

@@ -12,6 +12,7 @@ function Get-SPWebRolesMigrationManifestInfo
         foreach($role in $SPWeb.Roles)
         {
             $RoleEntry = New-Object System.Object
+            $RoleEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -Value "$($SPWeb.URL)"
             $RoleEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Role"
             $RoleEntry | Add-Member -MemberType NoteProperty -Name "Role Name" -Value "$($Role.Name)"
             $RoleEntry | Add-Member -MemberType NoteProperty -Name "Permission Mask" -Value "$($Role.PermissionMask)"

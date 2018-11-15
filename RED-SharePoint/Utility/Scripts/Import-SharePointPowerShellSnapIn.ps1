@@ -1,1 +1,1 @@
-if(!(Get-PSSnapin Microsoft.SharePoint.Powershell -ErrorAction 0)){Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction 0 }
+if(!(Get-PSSnapin Microsoft.SharePoint.Powershell -ErrorAction SilentlyContinue)){Add-PSSnapin Microsoft.SharePoint.PowerShell -ErrorAction 0 }

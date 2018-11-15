@@ -8,14 +8,14 @@ function Get-SPWebMigrationValidation
     [System.Management.Automation.PSCredential]$Credential
     )
 
-    Write-Host "Connecting to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'))"
+    Write-Host "Connecting to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
     try
     {
-        Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL')) -Credentials $Credential | Out-Null
+        Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
     }
     catch
     {
-        write-host "Could not connect to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'))"
+        write-host "$(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
     }
     Try
     {
@@ -24,7 +24,7 @@ function Get-SPWebMigrationValidation
             $WebEntry = New-Object System.Object
             $WebEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Web"
             $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Web URL" -Value $Entry."Web URL"
-            $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Web URL" -Value ($Entry.'Web URL').Replace($entry.'Source Site URL', $entry.'Destination Site URL')
+            $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Web URL" -Value $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))
             $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Web Title" -value $Entry.'Web Title'
             $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Web Title" -value (Get-PnPWeb).title
             if($Entry."Web Title" -eq $WebEntry."Destination Web Title")
@@ -69,11 +69,11 @@ function Get-SPWebMigrationValidation
         }
         else
         {
-            Write-Host "No Connection to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'))"
+            Write-Host "No Connection to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
         }
     }
     catch
     {
-        Write-Host "Could not process web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'))"
+        Write-Host "$(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
     }
 }

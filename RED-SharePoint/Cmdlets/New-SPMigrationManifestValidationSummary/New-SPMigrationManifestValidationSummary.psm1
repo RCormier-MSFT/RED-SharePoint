@@ -101,11 +101,28 @@ function New-SPMigrationManifestValidationSummary
                 }
 
             }
-            elseif($Entry.'Type of Entry' -eq "WorkflowAssociation")
+            elseif($entry.'Type of Entry' -eq "Role")
             {
                 if($Mode = "ItemCount")
                 {
-                    $SummaryInfo = $Entry | Get-SPOListWorkflowAssociationValidation -Credential $Credential
+                    $SummaryInfo = $Entry | Get-SPOWebRoleValidation -Credential $Credential
+                    $ValidationSummary.Add($SummaryInfo) | Out-Null
+                }
+            }
+            elseif($Entry.'Type of Entry' -eq "Group")
+            {
+                if($Mode = "ItemCount")
+                {
+                    $SummaryInfo = $Entry | Get-SPOWebGroupValidation -Credential $Credential
+                    $ValidationSummary.Add($SummaryInfo) | Out-Null
+                }
+            }
+            elseif($entry.'Type of Entry' -eq "Group Mapping")
+            {
+                if($Mode = "ItemCount")
+                {
+                    $SummaryInfo = $Entry | Get-SPOWebGroupMappingValidation -Credential $Credential
+                    $ValidationSummary.Add($SummaryInfo) | Out-Null
                 }
             }
         }

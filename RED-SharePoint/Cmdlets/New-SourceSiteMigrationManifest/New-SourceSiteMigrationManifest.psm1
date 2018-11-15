@@ -48,7 +48,7 @@ function New-SourceSiteMigrationManifest
     }
     Process
     {
-        $SitesList = Import-Csv -Path $InputFile.LocalPath
+        $SitesList = Import-Csv -Path $InputFile.LocalPath | Where-Object {$_."Source Site URL".length -gt 0}
         $ReportInformation = New-Object System.Collections.Arraylist
         foreach($Site in $SitesList)
         {
@@ -90,6 +90,7 @@ function New-SourceSiteMigrationManifest
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group Mapping"
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                        $GroupEntry | add-Member -MemberType NoteProperty -Name "Web URL" -Value $web.URL
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -Value $Group.Name
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Roles Assigned" -Value ([String]::Join(",", ($Group.Roles | Select-Object -ExpandProperty Name)))
                         $ReportInformation.Add($GroupEntry) | Out-Null

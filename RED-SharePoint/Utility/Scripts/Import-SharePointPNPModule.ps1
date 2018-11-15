@@ -1,5 +1,5 @@
 if(!(Get-Module "SharePointPnPPowerShellOnline" -ListAvailable))
 {
-    Install-Module "SharePointPnPPowerShellOnline"
+    Install-Module "SharePointPnPPowerShellOnline" -ErrorAction SilentlyContinue
 }
-Import-Module "SharePointPnPPowerShellOnline"
+Import-Module "SharePointPnPPowerShellOnline" -ErrorAction SilentlyContinue

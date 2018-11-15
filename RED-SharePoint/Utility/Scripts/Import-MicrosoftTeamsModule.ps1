@@ -1,6 +1,6 @@
 if(!(Get-Module MicrosoftTeams -ListAvailable))
 {
-    Install-Module MicrosoftTeams
+    Install-Module MicrosoftTeams -ErrorAction SilentlyContinue
 }
 
-Import-Module MicrosoftTeams
+Import-Module MicrosoftTeams -ErrorAction SilentlyContinue

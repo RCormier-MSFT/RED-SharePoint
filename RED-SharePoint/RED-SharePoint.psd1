@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.23'
+ModuleVersion = '1.0.0.30'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -77,6 +77,10 @@ NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList
                 ".\cmdlets\Get-SPOListMigrationValidation\Get-SPOListMigrationValidation.psm1",
                 ".\cmdlets\Get-SPOListWorkflowAssociations\Get-SPOListWorkflowAssociations.psm1",
                 ".\cmdlets\Get-SPOListWorkflowAssociationValidation\Get-SPOListWorkflowAssociationValidation.psm1",
+                ".\cmdlets\Get-SPOSitePermissionMasks\Get-SPOSitePermissionMasks.psm1",
+                ".\cmdlets\Get-SPOWebGroupMappingValiation\Get-SPOWebGroupMappingValidation.psm1",
+                ".\cmdlets\Get-SPOWebGroupValidation\Get-SPOWebGroupValidation.psm1",
+                ".\cmdlets\Get-SPOWebRoleValidation\Get-SPOWebRoleValidation.psm1",
                 ".\cmdlets\Get-SPOWorkflowServicesManager\Get-SPOWorkflowServicesManager.psm1",
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
