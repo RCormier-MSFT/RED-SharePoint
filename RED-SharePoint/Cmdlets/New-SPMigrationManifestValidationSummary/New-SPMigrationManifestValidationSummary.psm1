@@ -92,6 +92,7 @@ function New-SPMigrationManifestValidationSummary
                     {
                         $ErrorObject = New-Object System.Object
                         $ErrorObject | Add-Member -MemberType NoteProperty -Name "Type of Entry" -value "List"
+                        $ErrorObject | Add-Member -MemberType NoteProperty -Name "Source Web URL" -Value "$($Entry.'Web URL')"
                         $ErrorObject | Add-Member -MemberType NoteProperty -Name "Destination Web URL" -Value $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))
                         $ErrorObject | Add-Member -MemberType NoteProperty -Name "List Title" -value $Entry.'List Title'
                         $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value "Error processing list `'$($entry.'List Title')`' in web $(($Entry.'Web URL').Replace($Entry.'Source Site URL', $Entry.'Destination Site URL'))"

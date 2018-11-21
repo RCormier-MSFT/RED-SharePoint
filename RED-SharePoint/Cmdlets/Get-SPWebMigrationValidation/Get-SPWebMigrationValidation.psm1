@@ -44,13 +44,13 @@ function Get-SPWebMigrationValidation
             {
                 $WebEntry | add-member -MemberType NoteProperty -Name "Destination Web Parts on Page" -Value "0"
             }
-            if($WebEntry."Source Web Parts on Page" -eq $WebEntry."Destination Web Parts on Page")
+            if($Entry."Web Parts on Page" -eq $WebpartCount)
             {
                 $WebEntry | add-member -MemberType NoteProperty -name "Number of Web Parts Matching" -value "True"
             }
             else
             {
-                $WebEntry | add-member -MemberType NoteProperty -name "Number of Web Parts Matching" -value "True"
+                $WebEntry | add-member -MemberType NoteProperty -name "Number of Web Parts Matching" -value "False"
             }
             $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Number of Lists" -value $entry."Number of Lists"
             $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList).count

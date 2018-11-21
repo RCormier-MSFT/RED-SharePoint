@@ -85,10 +85,10 @@ function New-SMATReportCheckedOutFilesSummary
                     }
                     else
                     {
-                        foreach($web in $CheckedOutFile.web.webs)
+                        foreach($web in $CheckedOutFile.web.site.allwebs)
                         {
                             $lists = $web.lists | Where-Object {$_ -is [Microsoft.SharePoint.SPDocumentLibrary]}
-                            foreach($list in $lists)
+                            foreach($list in ($lists | Where-Object {$CheckedOutFile.ServerRelativeURL -match $_.RootFolder.ServerRelativeURL}))
                             {
                                 $FoundFile = $list.CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeurl.substring(1)}
                                 if($FoundFile)
@@ -103,9 +103,15 @@ function New-SMATReportCheckedOutFilesSummary
                                     {
                                         $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False" -Force
                                     }
+                                    Break
                                 }
                             }
+                            if($FoundFile)
+                            {
+                                Break
+                            }
                         }
+                        Remove-Variable -Name FoundFile
                     }
 
 

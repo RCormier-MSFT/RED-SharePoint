@@ -15,6 +15,12 @@ function New-SourceSiteMigrationManifest
         if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
     })]
     [URI]$InputFile,
+    [parameter(Mandatory=$False, position=2, HelpMessage="Use the -NameSpaceExclusionFile parameter to specify a text file containing a list of app domain namespaces that should be escluded.")]
+    [ValidateScript({
+        if($_.localpath.endswith("txt")){$True}else{throw "`r`n`'InputFile`' must be a txt file"}
+        if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
+    })]
+    [URI]$AppDomainNameSpaceExclusionFile,
     [parameter(Mandatory=$False, position=1, HelpMessage="Use the -Force switch to overwrite the existing output file")]
     [switch]$Force
     )
@@ -57,8 +63,41 @@ function New-SourceSiteMigrationManifest
             $SiteEntry = Get-SPSiteMigrationManifestInfo $SPSite
             $SiteEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SPSite."URL"
             $SiteEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -value $Site."Destination Site URL"
+            if($AppDomainNameSpaceExclusionFile)
+            {
+                [Array]$Exclusions = Get-Content $AppDomainNameSpaceExclusionFile.LocalPath
+                $ExcludedWebs = New-Object System.Collections.Arraylist
+                $WebsToProcess = New-Object System.Collections.ArrayList
+                foreach($Exclusion in $Exclusions)
+                {
+                    [Array]$ExclusionMatches = $SPSite.AllWebs | ? {$_.url -match $Exclusion}
+                    if($ExclusionMatches)
+                    {
+                        foreach($Match in $ExclusionMatches)
+                        {
+                            $ExcludedWebs.Add($Match.url) | Out-Null
+                        }
+                    }
+                }
+                foreach($Web in $SPSite.AllWebs)
+                {
+                    if($ExcludedWebs -match $Web.url)
+                    {
+                        Write-Verbose "Web `'$($Web.url)`' has been excluded"
+                    }
+                    else
+                    {
+                        $WebsToProcess.Add($Web) | Out-Null
+                    }
+                }
+                $SiteEntry.'Number of webs' = $WebsToProcess.Count
+            }
+            else
+            {
+                $WebsToProcess = $SPSite.AllWebs
+            }
             $ReportInformation.Add($SiteEntry) | Out-Null
-            foreach ($Web in $SPSite.AllWebs)
+            foreach ($Web in $WebsToProcess)
             {
                 $WebEntry = Get-SPWebMigrationManifestInfo $Web
                 $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
