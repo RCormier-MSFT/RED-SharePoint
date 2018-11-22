@@ -66,7 +66,17 @@ function New-SMATReportCheckedOutFilesSummary
                 Catch
                 {
                     $CheckedOutFile = $SPSite.rootweb.GetFile($File.File)
-                    if($CheckedOutFile.InDocumentLibrary -eq "True")
+                    if($file.file.contains("/lists/"))
+                    {
+                        if(((Get-SPWeb ("$($CheckedOutFile.Web.Site.URL)/$($CheckedOutFile.url.Substring(0,$CheckedOutFile.Url.Indexof("/Lists")))")).Lists | Where-Object {$_.RootFolder.Name -eq $CheckedOutFile.ParentFolder.Name}).basetype -eq "Survey")
+                        {
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value "Incomplete Survey" -Force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value "Incomplete Survey" -Force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "Incomplete Survey" -Force
+
+                        }
+                    }
+                    ElseIf($CheckedOutFile.InDocumentLibrary -eq "True")
                     {
                         if((($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Select-Object -ExpandProperty url) -imatch $CheckedOutFile.ServerRelativeURL.Substring(1))
                         {
@@ -81,6 +91,12 @@ function New-SMATReportCheckedOutFilesSummary
                             {
                                 $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False" -Force
                             }
+                        }
+                        else
+                        {
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value "File is no longer checked out" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value "File is no longer checked out" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "File is no longer checked out" -force
                         }
                     }
                     else
