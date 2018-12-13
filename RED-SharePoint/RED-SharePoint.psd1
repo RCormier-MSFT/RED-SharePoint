@@ -70,7 +70,8 @@ ScriptsToProcess = @(".\Utility\Scripts\Import-SharePointOnlineCSOM.ps1",
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList.psm1",
+NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
+                ".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList.psm1",
                 ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
                 ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
                 ".\cmdlets\Get-SPListMigrationManifestInfo\Get-SPListMigrationManifestInfo.psm1",
