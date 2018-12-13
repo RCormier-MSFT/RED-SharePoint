@@ -32,7 +32,6 @@ function Get-CheckedOutFilesInList
         {
             $CheckedOutFiles.Add($File.url, $File)
         }
-
     }
 
     End

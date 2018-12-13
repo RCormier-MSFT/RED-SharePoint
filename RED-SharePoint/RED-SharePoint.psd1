@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.39'
+ModuleVersion = '1.0.0.44'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -86,7 +86,7 @@ NestedModules = @(".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebGroupsMigrationManifestInfo\Get-SPWebGroupsMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPWebMigrationManifestInfo\Get-SPWebMigrationManifestInfo.psm1",
-                ".\cmdlets\Get-SPWebMigrationValidation\Get-SPWebMigrationValidation.psm1",
+                ".\cmdlets\Get-SPOWebMigrationValidation\Get-SPOWebMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebRolesMigrationManifestInfo\Get-SPWebRolesMigrationManifestInfo.psm1",
                 ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
                 ".\cmdlets\Get-UniqueSitesFromSourceSiteMigrationManifest\Get-UniqueSitesFromSourceSiteMigrationManifest.psm1",

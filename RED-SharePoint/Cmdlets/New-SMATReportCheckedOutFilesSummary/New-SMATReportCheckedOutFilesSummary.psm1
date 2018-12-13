@@ -41,10 +41,12 @@ function New-SMATReportCheckedOutFilesSummary
         $FileReport = New-Object System.Collections.ArrayList
         foreach($Site in $AllSites)
         {
+            Write-Progress -Activity "Processing sites" -Status "Processing site ($($Allsites.IndexOf($site)+1) of $($Allsites.count)) - $($Site)" -PercentComplete(($AllSites.IndexOf($Site)/$AllSites.Count*100)) -Id 1
             $SPSite = get-spsite $Site
             [Array]$Files = $AllItems | Where-Object {$_.SiteURL -eq $Site}
             ForEach($File in $Files)
             {
+                Write-Progress -Activity "Processing Checked Out Files" -Status "Processing file $($Files.IndexOf($file)+1) of $($Files.Count)" -PercentComplete (($files.IndexOf($file)/$files.Count*100)) -ParentId 1
                 $FileInformation = New-Object System.Object
                 $FileInformation | Add-Member -MemberType NoteProperty -Name "SiteURL" -Value $File.SiteURL
                 $FileInformation | Add-Member -MemberType NoteProperty -Name "File URL" -Value $File.File
@@ -66,7 +68,7 @@ function New-SMATReportCheckedOutFilesSummary
                 Catch
                 {
                     $CheckedOutFile = $SPSite.rootweb.GetFile($File.File)
-                    if($file.file.contains("/lists/"))
+                    if($file.file -match "/Lists/")
                     {
                         if(((Get-SPWeb ("$($CheckedOutFile.Web.Site.URL)/$($CheckedOutFile.url.Substring(0,$CheckedOutFile.Url.Indexof("/Lists")))")).Lists | Where-Object {$_.RootFolder.Name -eq $CheckedOutFile.ParentFolder.Name}).basetype -eq "Survey")
                         {
@@ -78,7 +80,7 @@ function New-SMATReportCheckedOutFilesSummary
                     }
                     ElseIf($CheckedOutFile.InDocumentLibrary -eq "True")
                     {
-                        if((($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Select-Object -ExpandProperty url) -imatch $CheckedOutFile.ServerRelativeURL.Substring(1))
+                        if((($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Select-Object -ExpandProperty url).startswith($CheckedOutFile.ServerRelativeURL.Substring(1)))
                         {
                             $CheckedOutFileInfo = ($CheckedOutFile.web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeURL.Substring(1)}
                             $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value ($CheckedOutFileInfo.TimeLastModified) -Force
@@ -101,10 +103,10 @@ function New-SMATReportCheckedOutFilesSummary
                     }
                     else
                     {
-                        foreach($web in $CheckedOutFile.web.site.allwebs)
+                        foreach($web in ($CheckedOutFile.web.site.allwebs | Where-Object {$CheckedOutFile.ServerRelativeURL.startswith($_.RootFolder.ServerRelativeURL)}))
                         {
                             $lists = $web.lists | Where-Object {$_ -is [Microsoft.SharePoint.SPDocumentLibrary]}
-                            foreach($list in ($lists | Where-Object {$CheckedOutFile.ServerRelativeURL -match $_.RootFolder.ServerRelativeURL}))
+                            foreach($list in ($lists | Where-Object {$CheckedOutFile.ServerRelativeURL.startswith($_.RootFolder.ServerRelativeURL)}))
                             {
                                 $FoundFile = $list.CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeurl.substring(1)}
                                 if($FoundFile)
@@ -124,16 +126,19 @@ function New-SMATReportCheckedOutFilesSummary
                             }
                             if($FoundFile)
                             {
+                                Remove-Variable -name FoundFile
                                 Break
                             }
                         }
-                        Remove-Variable -Name FoundFile
+
                     }
 
 
                 }
                 $FileReport.Add($FileInformation) | Out-Null
+                Remove-Variable -Name Fileinformation -ErrorAction SilentlyContinue
             }
+
             $SPSite.Dispose()
         }
 
@@ -143,4 +148,5 @@ function New-SMATReportCheckedOutFilesSummary
         }
     }
     $FileReport | Export-Csv -Path $OutputFile.LocalPath -NoTypeInformation -Force
+    Write-Progress -Activity "Processing Checked Out Files" -Status "Completed" -PercentComplete 100 -Completed
 }

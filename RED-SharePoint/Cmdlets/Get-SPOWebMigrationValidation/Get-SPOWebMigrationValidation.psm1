@@ -1,11 +1,13 @@
-function Get-SPWebMigrationValidation
+function Get-SPOWebMigrationValidation
 {
     [cmdletbinding()]
     param(
     [parameter(Mandatory=$True, ValueFromPipeline=$True, position=0)]
     [System.Object[]]$Entry,
     [parameter(Mandatory=$True, position=1)]
-    [System.Management.Automation.PSCredential]$Credential
+    [System.Management.Automation.PSCredential]$Credential,
+    [parameter(Mandatory=$False, position=2, HelpMessage="Use the -IncludeHiddenLists switch to include hidden lists in the report")]
+    [switch]$IncludeHiddenLists
     )
 
     Write-Host "Connecting to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
@@ -52,8 +54,33 @@ function Get-SPWebMigrationValidation
             {
                 $WebEntry | add-member -MemberType NoteProperty -name "Number of Web Parts Matching" -value "False"
             }
+            $WebEntry | Add-Member -MemberType NoteProperty -name "Source Visible Web Parts on Page" -value $Entry."Visible Web Parts on Page"
+            if($OpenWebPartCount = (Get-PnPWebPart -ServerRelativePageUrl (Get-PnPHomePage) | ? {$_.webpart.isclosed -eq $False}).count)
+            {
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Number of visible webparts" -Value $OpenWebPartCount
+            }
+            else
+            {
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Number of visible webparts" -Value "0"
+            }
+            if($Entry."Visible Web Parts on Page" -eq $OpenWebPartCount)
+            {
+                $WebEntry | add-member -MemberType NoteProperty -name "Number of Visible Web Parts Matching" -value "True"
+            }
+            else
+            {
+                $WebEntry | add-member -MemberType NoteProperty -name "Number of Visible Web Parts Matching" -value "False"
+            }
             $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Number of Lists" -value $entry."Number of Lists"
-            $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList).count
+            if($IncludeHidddenLists)
+            {
+                $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList).count
+            }
+            else
+            {
+                $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList | Where-Object {-not $_.hidden}).count
+            }
+
             if($entry."Number of Lists" -eq $WebEntry."Destination Number of Lists")
             {
                 $WebEntry | add-member -MemberType NoteProperty -name "Number of Lists Matching" -Value "True"

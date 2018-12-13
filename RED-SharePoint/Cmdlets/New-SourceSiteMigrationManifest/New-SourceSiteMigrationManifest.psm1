@@ -15,14 +15,22 @@ function New-SourceSiteMigrationManifest
         if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
     })]
     [URI]$InputFile,
-    [parameter(Mandatory=$False, position=2, HelpMessage="Use the -NameSpaceExclusionFile parameter to specify a text file containing a list of app domain namespaces that should be escluded.")]
+    [parameter(Mandatory=$False, position=1, HelpMessage="Use the -AppDomainNamespaceExclusionFile parameter to specify a text file containing a list of app domain namespaces that should be escluded.")]
     [ValidateScript({
         if($_.localpath.endswith("txt")){$True}else{throw "`r`n`'InputFile`' must be a txt file"}
         if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
     })]
-    [URI]$AppDomainNameSpaceExclusionFile,
-    [parameter(Mandatory=$False, position=1, HelpMessage="Use the -Force switch to overwrite the existing output file")]
-    [switch]$Force
+    [URI]$AppDomainNamespaceExclusionFile,
+    [parameter(Mandatory=$False, position=2, HelpMessage="Use the -GroupExclusionFile parameter to specify a text file containing a list groups that should be evaluated for exclusion.")]
+    [ValidateScript({
+        if($_.localpath.endswith("txt")){$True}else{throw "`r`n`'InputFile`' must be a txt file"}
+        if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
+    })]
+    [URI]$GroupExclusionFile,
+    [parameter(Mandatory=$False, position=3, HelpMessage="Use the -Force switch to overwrite the existing output file")]
+    [switch]$Force,
+    [parameter(Mandatory=$False, position=4, HelpMessage="Use the -IncludeHiddenLists switch to include hidden lists in the report")]
+    [switch]$IncludeHidddenLists
     )
     DynamicParam
     {
@@ -99,7 +107,15 @@ function New-SourceSiteMigrationManifest
             $ReportInformation.Add($SiteEntry) | Out-Null
             foreach ($Web in $WebsToProcess)
             {
-                $WebEntry = Get-SPWebMigrationManifestInfo $Web
+                if($IncludeHidddenLists)
+                {
+                    $WebEntry = Get-SPWebMigrationManifestInfo $Web -IncludeHiddenLists
+                }
+                else
+                {
+                    $WebEntry = Get-SPWebmigrationManifestInfo $Web
+                }
+
                 $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
                 $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                 $ReportInformation.Add($WebEntry) | Out-Null
@@ -114,7 +130,14 @@ function New-SourceSiteMigrationManifest
                             $WebRole | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                             $ReportInformation.Add($WebRole) | Out-Null
                         }
-                        $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web
+                        if($GroupExclusionFile)
+                        {
+                            $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web -GroupExclusionFile $GroupExclusionFile
+                        }
+                        else
+                        {
+                            $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web
+                        }
                         foreach($WebGroup in $WebGroupEntries)
                         {
                             $WebGroup | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
@@ -136,13 +159,27 @@ function New-SourceSiteMigrationManifest
                     }
 
                 }
-                foreach($list in $web.lists)
+                if($IncludeHidddenLists)
                 {
-                    $ListEntry = Get-SPListMigrationManifestInfo $list
-                    $ListEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
-                    $ListEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
-                    $ListEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -value $WebEntry."Web URL"
-                    $ReportInformation.Add($ListEntry) | Out-Null
+                    foreach($list in $web.lists)
+                    {
+                        $ListEntry = Get-SPListMigrationManifestInfo $list
+                        $ListEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                        $ListEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                        $ListEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -value $WebEntry."Web URL"
+                        $ReportInformation.Add($ListEntry) | Out-Null
+                    }
+                }
+                else
+                {
+                    foreach($list in $web.lists | Where-Object {-not $_.hidden})
+                    {
+                        $ListEntry = Get-SPListMigrationManifestInfo $list
+                        $ListEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                        $ListEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                        $ListEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -value $WebEntry."Web URL"
+                        $ReportInformation.Add($ListEntry) | Out-Null
+                    }
                 }
             }
 

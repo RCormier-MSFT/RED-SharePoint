@@ -39,6 +39,11 @@ Process
                     Write-Verbose "Error occurred processing item with ID $($Checkedoutfiles[$key].id)"
                 }
             }
+            $FileswithNoCheckedInVersions = $list.CheckedOutFiles
+            foreach($File in $FileswithNoCheckedInVersions)
+            {
+                $file.CheckIn($AdminMessage)
+            }
         }
         $web.dispose()
     }

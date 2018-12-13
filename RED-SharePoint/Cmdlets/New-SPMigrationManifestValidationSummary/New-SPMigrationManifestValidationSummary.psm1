@@ -20,7 +20,9 @@ function New-SPMigrationManifestValidationSummary
     [parameter(Mandatory=$False, position=2, HelpMessage="Supply a credential object to connect to SharePOint Online")]
     [System.Management.Automation.PSCredential]$Credential,
     [parameter(Mandatory=$False, position=3, HelpMessage="Use the -Force switch to overwrite the existing output file")]
-    [switch]$Force
+    [switch]$Force,
+    [parameter(Mandatory=$False, position=1, HelpMessage="Use the -IncludeHiddenLists switch to include hidden lists in the report")]
+    [switch]$IncludeHidddenLists
     )
 
     if([String]::IsNullOrEmpty($OutputFile.LocalPath))
@@ -62,7 +64,15 @@ function New-SPMigrationManifestValidationSummary
             {
                 if(($Mode -eq "Structure") -or ($Mode -eq "ItemCount"))
                 {
-                    $SummaryInfo = $Entry | Get-SPWebMigrationValidation -Credential $Credential
+                    if($IncludeHidddenLists)
+                    {
+                        $SummaryInfo = $Entry | Get-SPOWebMigrationValidation -Credential $Credential
+                    }
+                    else
+                    {
+                        $SummaryInfo = $Entry | Get-SPOWebMigrationValidation -Credential $Credential -IncludeHiddenLists
+                    }
+
                     if($SummaryInfo)
                     {
                         $ValidationSummary.Add($SummaryInfo) | Out-Null
