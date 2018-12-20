@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.45'
+ModuleVersion = '1.0.0.49'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -61,7 +61,8 @@ ScriptsToProcess = @(".\Utility\Scripts\Import-SharePointOnlineCSOM.ps1",
                      ".\Utility\Scripts\Import-SharePointPNPModule.ps1",
                      ".\Utility\scripts\Import-SharePointPowerShellSnapIn.ps1",
                      ".\Utility\Scripts\Import-SharePointOnlinePowerShellModule.ps1",
-                     ".\Utility\Scripts\Import-MicrosoftTeamsModule.ps1")
+                     ".\Utility\Scripts\Import-MicrosoftTeamsModule.ps1",
+                     ".\Utility\Scripts\Import-ActiveDirectoryModule.ps1")
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()
@@ -93,6 +94,7 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\cmdlets\Get-UniqueSitesFromSourceSiteMigrationManifest\Get-UniqueSitesFromSourceSiteMigrationManifest.psm1",
                 ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
                 ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
+                ".\Cmdlets\New-SMATReportCheckedOutFilesEmail\New-SMATReportCheckedOutFilesEmail.psm1",
                 ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
                 ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",
                 ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",

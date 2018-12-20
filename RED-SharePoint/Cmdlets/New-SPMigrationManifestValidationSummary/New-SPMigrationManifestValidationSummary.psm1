@@ -21,6 +21,12 @@ function New-SPMigrationManifestValidationSummary
     [System.Management.Automation.PSCredential]$Credential,
     [parameter(Mandatory=$False, position=3, HelpMessage="Use the -Force switch to overwrite the existing output file")]
     [switch]$Force,
+    [parameter(Mandatory=$False, position=2, HelpMessage="Use the -GroupExclusionFile parameter to specify a text file containing a list groups that should be evaluated for exclusion.")]
+    [ValidateScript({
+    if($_.localpath.endswith("txt")){$True}else{throw "`r`n`'InputFile`' must be a txt file"}
+    if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
+    })]
+    [URI]$GroupExclusionFile,
     [parameter(Mandatory=$False, position=1, HelpMessage="Use the -IncludeHiddenLists switch to include hidden lists in the report")]
     [switch]$IncludeHidddenLists
     )
@@ -64,14 +70,13 @@ function New-SPMigrationManifestValidationSummary
             {
                 if(($Mode -eq "Structure") -or ($Mode -eq "ItemCount"))
                 {
-                    if($IncludeHidddenLists)
+                    $Expression = "`$SummaryInfo = `$Entry | Get-SPOWebMigrationValidation -Credential `$Credential"
+                    if($IncludeHiddenLists)
                     {
-                        $SummaryInfo = $Entry | Get-SPOWebMigrationValidation -Credential $Credential
+                        $Expression = "$($Expression) -IncludeHiddenLists"
                     }
-                    else
-                    {
-                        $SummaryInfo = $Entry | Get-SPOWebMigrationValidation -Credential $Credential -IncludeHiddenLists
-                    }
+                    Invoke-Expression $Expression
+
 
                     if($SummaryInfo)
                     {
@@ -124,7 +129,12 @@ function New-SPMigrationManifestValidationSummary
             {
                 if($Mode = "ItemCount")
                 {
-                    $SummaryInfo = $Entry | Get-SPOWebGroupValidation -Credential $Credential
+                    $Expression = "`$SummaryInfo = `$Entry | Get-SPOWebGroupValidation -Credential `$Credential"
+                    if($GroupExclusionFile)
+                    {
+                        $Expression = "$($Expression) -GroupExclusionFile `"$($GroupExclusionFile.LocalPath)`""
+                    }
+                    Invoke-Expression $Expression
                     $ValidationSummary.Add($SummaryInfo) | Out-Null
                 }
             }

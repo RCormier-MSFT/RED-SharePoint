@@ -14,7 +14,10 @@ Function Get-SPOWebGroupValidation
     [URI]$GroupExclusionFile
     )
 
-    $GroupExclusions = Get-Content $GroupExclusionFile.LocalPath
+    if($GroupExclusionFile)
+    {
+        $GroupExclusions = Get-Content $GroupExclusionFile.LocalPath
+    }
     Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
     $WebGroup = Get-PnPGroup -Identity $Entry.'Group Name' -ErrorAction SilentlyContinue
     $WebGroupEntry = New-Object System.Object
@@ -24,16 +27,20 @@ Function Get-SPOWebGroupValidation
     $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -value $Entry.'Group Name'
     if($WebGroup)
     {
+        $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group"
         $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Exists in Destination Site" -Value "True"
         $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Source Members in Group" -Value $Entry.'Members in Group'
         $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Destination Members in Group" -Value $WebGroup.Users.Count
-        if($GroupExclusions -imatch $Entry.'Group Name')
+        if($GroupExclusionFile)
         {
-            $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Excluded Group" -Value "True"
-        }
-        else
-        {
-            $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Excluded Group" -Value "False"
+            if($GroupExclusions -imatch $Entry.'Group Name')
+            {
+                $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Excluded Group" -Value "True"
+            }
+            else
+            {
+                $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Excluded Group" -Value "False"
+            }
         }
     }
     else
