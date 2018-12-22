@@ -13,6 +13,7 @@ Function Get-SPOWebGroupMappingValidation
     if($GroupPermissions.length -le 0)
     {
         $GroupMappingEntry = New-Object System.Object
+        $GroupMappingEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value $Entry.'Group Mapping'
         $GroupMappingEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $Entry.'Source Site URL'
         $GroupMappingEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $Entry.'Destination Site URL'
         $GroupMappingEntry | Add-Member -MemberType NoteProperty -name "Web URL" -Value (Get-PnPConnection | Select-Object URL)

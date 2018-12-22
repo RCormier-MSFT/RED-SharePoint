@@ -27,9 +27,9 @@ function New-SMATReportCheckedOutFilesEmail
     $Email.To.Add($SMTPToAddress)
     $Email.CC.Add($SMTPCCAddress)
     $Email.Subject = $SMTPMailSubject
-    $Email.Body = Get-Content -Path $PSBoundParameters.SMTPBodyFile.localpath
+    $Email.Body = Get-Content -Path $SMTPBodyFile.localpath
     $Email.IsBodyHtml = $true
-    $Attachment = new-object Net.Mail.Attachment($AttachmentFile)
+    $Attachment = new-object Net.Mail.Attachment($AttachmentFile.LocalPath)
     $Email.Attachments.Add($Attachment)
     $SMTPClient.Send($Email)
 }

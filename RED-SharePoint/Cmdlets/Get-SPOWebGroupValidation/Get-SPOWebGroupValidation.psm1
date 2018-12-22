@@ -47,4 +47,5 @@ Function Get-SPOWebGroupValidation
     {
         $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Exists in Destination Site" -Value "False"
     }
+    Return $WebGroupEntry
 }
