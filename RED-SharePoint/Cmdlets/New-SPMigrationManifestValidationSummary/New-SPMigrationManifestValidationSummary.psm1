@@ -37,7 +37,7 @@ function New-SPMigrationManifestValidationSummary
         $OutputFile = Join-Path $OutputDirectory.LocalPath "\ValidationSummary.json"
     }
 
-    $SourceEntries = (Get-Content $SourceManifest.LocalPath | ConvertFrom-Json)
+    $SourceEntries = (Get-Content $SourceManifest.LocalPath | Out-String | ConvertFrom-Json)
     $UniqueSites = , $SourceEntries | Get-UniqueSitesFromSourceSiteMigrationManifest
     $ValidationSummary = New-Object System.Collections.Arraylist
     foreach($Site in $UniqueSites)

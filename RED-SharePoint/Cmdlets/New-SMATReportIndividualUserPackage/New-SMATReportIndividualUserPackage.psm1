@@ -17,7 +17,7 @@ function New-SMATReportIndividualUserPackage
     [Parameter(Mandatory=$False, Position=2)]
     [URI]$OutputDirectory,
     [parameter(Mandatory=$False, Position=3, ParameterSetName="SendMail")]
-    [Switch]$Sendmail
+    [Switch]$SendMail
     )
     DynamicParam
     {
