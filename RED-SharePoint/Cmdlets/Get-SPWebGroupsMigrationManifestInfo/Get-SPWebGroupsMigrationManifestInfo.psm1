@@ -27,6 +27,30 @@ function Get-SPWebGroupsMigrationManifestInfo
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group"
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -Value "$($Group.Name)"
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Members in Group" -Value "$($Group.Users.Count)"
+            if($MyWeb.AssociatedVisitorGroup.Name -eq $Group.Name)
+            {
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVistorGroup" -Value $True
+            }
+            else
+            {
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVistorGroup" -Value $False
+            }
+            if($MyWeb.AssociatedMemberGroup.Name -eq $Group.Name)
+            {
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedMemberGroup" -Value $True
+            }
+            else
+            {
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedMemberGroup" -Value $False
+            }
+            if($MyWeb.AssociatedOwnerGroup.Name -eq $Group.Name)
+            {
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedOwnerGroup" -Value $True
+            }
+            else
+            {
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedOwnerGroup" -Value $False
+            }
             if($GroupExclusions)
             {
                 if($GroupExclusions -imatch $Group.Name)

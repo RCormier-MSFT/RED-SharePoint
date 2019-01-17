@@ -145,7 +145,7 @@ function New-SourceSiteMigrationManifest
                             $ReportInformation.Add($WebGroup) | Out-Null
                         }
                     }
-                    $AllGroups = $web.groups
+                    $AllGroups = $web.SiteGroups
                     foreach($Group in $AllGroups)
                     {
                         $GroupEntry = New-Object System.Object

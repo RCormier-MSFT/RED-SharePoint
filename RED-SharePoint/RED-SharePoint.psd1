@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.52'
+ModuleVersion = '1.0.0.53'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -106,7 +106,8 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\cmdlets\Remove-AllDomainUserProfiles\Remove-AllDomainUserProfiles.psm1",
                 ".\Cmdlets\Rename-SPContentDatabaseServer\Rename-SPContentDatabaseServer.psm1",
                 ".\Cmdlets\Save-SPLibraryVersionConfiguration\Save-SPLibraryVersionConfiguration.psm1",
-                ".\Cmdlets\Set-SPLibraryVersionConfiguration\Set-SPLibraryVersionConfiguration.psm1"
+                ".\Cmdlets\Set-SPLibraryVersionConfiguration\Set-SPLibraryVersionConfiguration.psm1",
+                ".\Cmdlets\Set-SPOAssociatedGroups\Set-SPOAssociatedGroups.psm1"
                   )
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
