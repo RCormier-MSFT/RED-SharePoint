@@ -14,7 +14,7 @@ function Get-SPWebGroupsMigrationManifestInfo
     )
 
     $WebGroupsEntries = New-Object System.Collections.ArrayList
-    if($SPWeb.IsRootWeb)
+    if($SPWeb.HasUniquePerm)
     {
         if($GroupExclusionFile)
         {
@@ -27,15 +27,15 @@ function Get-SPWebGroupsMigrationManifestInfo
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group"
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -Value "$($Group.Name)"
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Members in Group" -Value "$($Group.Users.Count)"
-            if($MyWeb.AssociatedVisitorGroup.Name -eq $Group.Name)
+            if($SPWeb.AssociatedVisitorGroup.Name -eq $Group.Name)
             {
                 $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVistorGroup" -Value $True
             }
             else
             {
-                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVistorGroup" -Value $False
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVisitorGroup" -Value $False
             }
-            if($MyWeb.AssociatedMemberGroup.Name -eq $Group.Name)
+            if($SPWeb.AssociatedMemberGroup.Name -eq $Group.Name)
             {
                 $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedMemberGroup" -Value $True
             }
@@ -43,7 +43,7 @@ function Get-SPWebGroupsMigrationManifestInfo
             {
                 $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedMemberGroup" -Value $False
             }
-            if($MyWeb.AssociatedOwnerGroup.Name -eq $Group.Name)
+            if($SPWeb.AssociatedOwnerGroup.Name -eq $Group.Name)
             {
                 $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedOwnerGroup" -Value $True
             }

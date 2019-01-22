@@ -130,20 +130,20 @@ function New-SourceSiteMigrationManifest
                             $WebRole | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                             $ReportInformation.Add($WebRole) | Out-Null
                         }
-                        if($GroupExclusionFile)
-                        {
-                            $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web -GroupExclusionFile $GroupExclusionFile
-                        }
-                        else
-                        {
-                            $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web
-                        }
-                        foreach($WebGroup in $WebGroupEntries)
-                        {
-                            $WebGroup | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
-                            $WebGroup | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
-                            $ReportInformation.Add($WebGroup) | Out-Null
-                        }
+                    }
+                    if($GroupExclusionFile)
+                    {
+                        $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web -GroupExclusionFile $GroupExclusionFile
+                    }
+                    else
+                    {
+                        $WebGroupEntries = Get-SPWebGroupsMigrationManifestInfo -SPWeb $Web
+                    }
+                    foreach($WebGroup in $WebGroupEntries)
+                    {
+                        $WebGroup | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SiteEntry."Source Site URL"
+                        $WebGroup | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
+                        $ReportInformation.Add($WebGroup) | Out-Null
                     }
                     $AllGroups = $web.SiteGroups
                     foreach($Group in $AllGroups)
@@ -154,7 +154,14 @@ function New-SourceSiteMigrationManifest
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $SiteEntry."Destination Site URL"
                         $GroupEntry | add-Member -MemberType NoteProperty -Name "Web URL" -Value $web.URL
                         $GroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -Value $Group.Name
-                        $GroupEntry | Add-Member -MemberType NoteProperty -Name "Roles Assigned" -Value ([String]::Join(",", ($Group.Roles | Select-Object -ExpandProperty Name)))
+                        if($Group.Roles.count -gt 0)
+                        {
+                            $GroupEntry | Add-Member -MemberType NoteProperty -Name "Roles Assigned" -Value ([String]::Join(",", ($Group.Roles | Select-Object -ExpandProperty Name)))
+                        }
+                        else
+                        {
+                            $GroupEntry | Add-Member -MemberType NoteProperty -Name "Roles Assigned" -Value "None"
+                        }
                         $ReportInformation.Add($GroupEntry) | Out-Null
                     }
 

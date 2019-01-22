@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.53'
+ModuleVersion = '1.0.0.55'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -82,17 +82,19 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\cmdlets\Get-SPOSitePermissionMasks\Get-SPOSitePermissionMasks.psm1",
                 ".\cmdlets\Get-SPOWebGroupMappingValiation\Get-SPOWebGroupMappingValidation.psm1",
                 ".\cmdlets\Get-SPOWebGroupValidation\Get-SPOWebGroupValidation.psm1",
+                ".\Cmdlets\Get-SPOWebMigrationValidation\Get-SPOWebMigrationValidation.psm1",
                 ".\cmdlets\Get-SPOWebRoleValidation\Get-SPOWebRoleValidation.psm1",
                 ".\cmdlets\Get-SPOWorkflowServicesManager\Get-SPOWorkflowServicesManager.psm1",
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
+                ".\cmdlets\Get-SPWebAssociatedGroupsFromMigrationManifest\Get-SPWebAssociatedGroupsFromMigrationManifest.psm1",
                 ".\cmdlets\Get-SPWebGroupsMigrationManifestInfo\Get-SPWebGroupsMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPWebMigrationManifestInfo\Get-SPWebMigrationManifestInfo.psm1",
-                ".\cmdlets\Get-SPOWebMigrationValidation\Get-SPOWebMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebRolesMigrationManifestInfo\Get-SPWebRolesMigrationManifestInfo.psm1",
                 ".\Cmdlets\Get-TeamsInformation\Get-TeamsInformation.psm1",
                 ".\cmdlets\Get-UniqueSitesFromSourceSiteMigrationManifest\Get-UniqueSitesFromSourceSiteMigrationManifest.psm1",
                 ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
+                ".\Cmdlets\Get-WebsWithUniquePermissionsFromMigrationManifest\Get-WebsWithUniquePermissionsFromMigrationManifest.psm1",
                 ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
                 ".\Cmdlets\New-SMATReportCheckedOutFilesEmail\New-SMATReportCheckedOutFilesEmail.psm1",
                 ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
@@ -101,6 +103,7 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\cmdlets\New-SourceSiteMigrationManifest\New-SourceSiteMigrationManifest.psm1",
                 ".\cmdlets\New-SPMigrationManifestValidationSummary\New-SPMigrationManifestValidationSummary.psm1",
                 ".\cmdlets\New-SPMigrationValidationReportPackage\New-SPMigrationValidationReportPackage.psm1",
+                ".\cmdlets\New-SPOBulkAssociatedGroupsUpdate\New-SPOBulkAssociatedGroupsUpdate.psm1",
                 ".\cmdlets\New-SPOClientContext\New-SPOClientContext.psm1",
                 ".\cmdlets\New-SPVersionReport\New-SPVersionReport.psm1",
                 ".\cmdlets\Remove-AllDomainUserProfiles\Remove-AllDomainUserProfiles.psm1",
