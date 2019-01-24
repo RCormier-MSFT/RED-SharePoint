@@ -18,10 +18,24 @@ function New-SPMigrationValidationReportPackage
     else
     {
         $ValidationSummary = (Get-Content $SourceManifest.LocalPath -Raw | ConvertFrom-Json)
-        $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Site"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Sites.csv") -NoTypeInformation -Force
-        $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Web"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Webs.csv") -NoTypeInformation -Force
-        $ValidationSummary | Where-Object {$_."Type of Entry" -eq "List"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Lists.csv") -NoTypeInformation -Force
-        $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Group"} | Export-Csv -Path $SourceManifest.LocalPath.Replace(".json", "_groups.csv") -NoTypeInformation -Force
+        $Mode = $ValidationSummary | where-object {$_.'Type of Entry' -eq "ReportInfo"} | Select-Object -ExpandProperty Mode
+        Write-Host "Report mode is $($Mode)" -ForegroundColor Yellow
+        if(($Mode = "FullReport") -or ($Mode = "Structure"))
+        {
+            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Site"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Sites.csv") -NoTypeInformation -Force
+            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Web"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Webs.csv") -NoTypeInformation -Force
+            Write-Host "Created Site and Web Report" -ForegroundColor Green
+        }
+        if(($Mode = "FullReport") -or ($Mode = "ItemCount"))
+        {
+            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "List"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Lists.csv") -NoTypeInformation -Force
+            Write-Host "Created Lists Report" -ForegroundColor Green
+        }
+        if(($Mode = "FullReport") -or ($Mode = "Permissions"))
+        {
+            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Group"} | Export-Csv -Path $SourceManifest.LocalPath.Replace(".json", "_groups.csv") -NoTypeInformation -Force
+            Write-Host "Created Groups Report" -ForegroundColor Green
+        }
     }
 
 }

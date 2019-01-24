@@ -15,7 +15,7 @@ function New-SPMigrationManifestValidationSummary
     })]
     [URI]$OutputFile,
     [parameter(Mandatory=$True, position=2, HelpMessage="Used to indicate which phase of reporting we are performing")]
-    [ValidateSet("Structure", "ItemCount", "Permissions")]
+    [ValidateSet("Structure", "ItemCount", "Permissions", "FullReport")]
     [String]$Mode,
     [parameter(Mandatory=$False, position=2, HelpMessage="Supply a credential object to connect to SharePOint Online")]
     [System.Management.Automation.PSCredential]$Credential,
@@ -34,12 +34,17 @@ function New-SPMigrationManifestValidationSummary
     if([String]::IsNullOrEmpty($OutputFile.LocalPath))
     {
         $OutputDirectory = New-Object Uri($SourceManifest, ".")
-        $OutputFile = Join-Path $OutputDirectory.LocalPath "\ValidationSummary.json"
+        $OutputFile = Join-Path $OutputDirectory.LocalPath "\ValidationSummary_$($Mode).json"
     }
 
     $SourceEntries = (Get-Content $SourceManifest.LocalPath | Out-String | ConvertFrom-Json)
     $UniqueSites = , $SourceEntries | Get-UniqueSitesFromSourceSiteMigrationManifest
     $ValidationSummary = New-Object System.Collections.Arraylist
+    $ReportInfo = New-Object System.Object
+    $ReportInfo | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "ReportInfo"
+    $ReportInfo | Add-Member -MemberType NoteProperty -Name "Date" -value "$(Get-Date)"
+    $ReportInfo | Add-Member -MemberType NoteProperty -Name "Mode" -Value "$($Mode)"
+    $ValidationSummary.Add($ReportInfo) | Out-Null
     foreach($Site in $UniqueSites)
     {
         $RelevantEntries = $SourceEntries | where-object {$_."Source Site URL" -eq $Site."Source Site URL"}
@@ -47,7 +52,7 @@ function New-SPMigrationManifestValidationSummary
         {
             if($Entry.'Type of Entry' -eq "Site Collection")
             {
-                if(($Mode -eq "Structure") -or ($Mode -eq "ItemCount"))
+                if(($Mode -eq "Structure") -or ($Mode -eq "FullReport"))
                 {
                     $SummaryInfo =  $Entry | Get-SPSiteMigrationValidation -Credential $Credential
                     if($SummaryInfo)
@@ -68,7 +73,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($Entry.'Type of Entry' -eq "Web")
             {
-                if(($Mode -eq "Structure") -or ($Mode -eq "ItemCount"))
+                if(($Mode -eq "Structure") -or ($Mode -eq "FullReport"))
                 {
                     $Expression = "`$SummaryInfo = `$Entry | Get-SPOWebMigrationValidation -Credential `$Credential"
                     if($IncludeHiddenLists)
@@ -96,7 +101,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($Entry.'Type of Entry' -eq "List")
             {
-                if($Mode = "ItemCount")
+                if(($Mode -eq "ItemCount") -or ($Mode -eq "FullReport"))
                 {
                     $SummaryInfo = $Entry | Get-SPOListMigrationValidation -Credential $Credential
                     if($SummaryInfo)
@@ -119,7 +124,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($entry.'Type of Entry' -eq "Role")
             {
-                if($Mode = "ItemCount")
+                if(($Mode = "Permissions") -or ($Mode -eq "FullReport"))
                 {
                     $SummaryInfo = $Entry | Get-SPOWebRoleValidation -Credential $Credential
                     $ValidationSummary.Add($SummaryInfo) | Out-Null
@@ -127,7 +132,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($Entry.'Type of Entry' -eq "Group")
             {
-                if($Mode = "ItemCount")
+                if(($Mode = "Permissions") -or ($mode -eq "FullReport"))
                 {
                     $Expression = "`$SummaryInfo = `$Entry | Get-SPOWebGroupValidation -Credential `$Credential"
                     if($GroupExclusionFile)
@@ -140,7 +145,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($entry.'Type of Entry' -eq "Group Mapping")
             {
-                if($Mode = "ItemCount")
+                if(($Mode = "Permissions") -or ($Mode -eq "FullReport"))
                 {
                     $SummaryInfo = $Entry | Get-SPOWebGroupMappingValidation -Credential $Credential
                     $ValidationSummary.Add($SummaryInfo) | Out-Null
