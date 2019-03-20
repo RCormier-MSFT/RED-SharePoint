@@ -10,7 +10,26 @@ Function Get-SPOWebRoleValidation
 
     Try
     {
-        Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        try
+        {
+            try
+            {
+                Get-PnPConnection | Out-Null
+                if(-not ((Get-PnPConnection).url.trimend("/") -eq $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))))
+                {
+                    Disconnect-PnPOnline
+                    Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+                }
+            }
+            catch
+            {
+                Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+            }
+        }
+        catch
+        {
+            write-host "Could not connect to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
+        }
         $WebRole = Get-PnPRoleDefinition -Identity $Entry.'Role Name' -ErrorAction SilentlyContinue
         $WebRoleEntry = New-Object System.Object
         $WebRoleEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Role"
@@ -26,7 +45,6 @@ Function Get-SPOWebRoleValidation
             $WebRoleEntry | Add-Member -MemberType NoteProperty -Name "Exists in Destination Site" -Value "False"
         }
         Return $WebRoleEntry
-        Disconnect-PnPOnline
     }
     catch
     {

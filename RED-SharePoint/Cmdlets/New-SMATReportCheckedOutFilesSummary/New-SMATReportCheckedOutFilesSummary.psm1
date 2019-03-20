@@ -80,29 +80,39 @@ function New-SMATReportCheckedOutFilesSummary
                     }
                     ElseIf($CheckedOutFile.InDocumentLibrary -eq "True")
                     {
-                        if((($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Select-Object -ExpandProperty url).startswith($CheckedOutFile.ServerRelativeURL.Substring(1)))
+                        if(($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles.count -ge 1)
                         {
-                            $CheckedOutFileInfo = ($CheckedOutFile.web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeURL.Substring(1)}
-                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value ($CheckedOutFileInfo.TimeLastModified) -Force
-                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($CheckedOutFileInfo.TimeLastModified).Days) -Force
-                            if((get-date).Subtract($CheckedOutFileInfo.TimeLastModified).days -gt $ReportThresholdInDays)
+                            if((($CheckedOutFile.Web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Select-Object -ExpandProperty url).startswith($CheckedOutFile.ServerRelativeURL.Substring(1)))
                             {
-                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "True" -Force
+                                $CheckedOutFileInfo = ($CheckedOutFile.web.Lists[$CheckedOutFile.documentlibrary.title]).CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeURL.Substring(1)}
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value ($CheckedOutFileInfo.TimeLastModified) -Force
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($CheckedOutFileInfo.TimeLastModified).Days) -Force
+                                if((get-date).Subtract($CheckedOutFileInfo.TimeLastModified).days -gt $ReportThresholdInDays)
+                                {
+                                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "True" -Force
+                                }
+                                else
+                                {
+                                    $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False" -Force
+                                }
                             }
                             else
                             {
-                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "False" -Force
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value "File is no longer checked out" -force
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value "File is no longer checked out" -force
+                                $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "File is no longer checked out" -force
                             }
                         }
                         else
                         {
-                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value "File is no longer checked out" -force
-                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value "File is no longer checked out" -force
-                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "File is no longer checked out" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value "No checked out files in list" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value "No checked out files in list" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "No checked out files in list" -force
                         }
                     }
                     else
                     {
+                        $FileAlreadyCheckedIn = $True
                         foreach($web in ($CheckedOutFile.web.site.allwebs | Where-Object {$CheckedOutFile.ServerRelativeURL.startswith($_.RootFolder.ServerRelativeURL)}))
                         {
                             $lists = $web.lists | Where-Object {$_ -is [Microsoft.SharePoint.SPDocumentLibrary]}
@@ -111,6 +121,7 @@ function New-SMATReportCheckedOutFilesSummary
                                 $FoundFile = $list.CheckedOutFiles | Where-Object {$_.url -eq $CheckedOutFile.ServerRelativeurl.substring(1)}
                                 if($FoundFile)
                                 {
+                                    $FileAlreadyCheckedIn = $False
                                     $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value ($FoundFile.TimeLastModified) -Force
                                     $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value $((Get-Date).Subtract($FoundFile.TimeLastModified).Days) -Force
                                     if((get-date).Subtract($FoundFile.TimeLastModified).days -gt $ReportThresholdInDays)
@@ -130,7 +141,12 @@ function New-SMATReportCheckedOutFilesSummary
                                 Break
                             }
                         }
-
+                        if($FileAlreadyCheckedIn -eq $True)
+                        {
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Date" -Value "File is no longer checked out" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked Out Days" -value "File is no longer checked out" -force
+                            $FileInformation | Add-Member -MemberType NoteProperty -Name "Checked out More than $($ReportThresholdInDays) days?" -Value "File is no longer checked out" -force
+                        }
                     }
 
 

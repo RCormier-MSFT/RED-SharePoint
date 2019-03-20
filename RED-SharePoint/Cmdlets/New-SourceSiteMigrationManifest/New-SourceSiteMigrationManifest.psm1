@@ -103,6 +103,7 @@ function New-SourceSiteMigrationManifest
             else
             {
                 $WebsToProcess = $SPSite.AllWebs
+                $SiteEntry.'Number of webs' = $WebsToProcess.Count
             }
             $ReportInformation.Add($SiteEntry) | Out-Null
             foreach ($Web in $WebsToProcess)

@@ -7,17 +7,32 @@ function Get-SPOWebMigrationValidation
     [parameter(Mandatory=$True, position=1)]
     [System.Management.Automation.PSCredential]$Credential,
     [parameter(Mandatory=$False, position=2, HelpMessage="Use the -IncludeHiddenLists switch to include hidden lists in the report")]
-    [switch]$IncludeHiddenLists
+    [switch]$IncludeHiddenLists,
+    [parameter(Mandatory=$False, position=3, HelpMessage="This parameter is used to identify which type of report data should be returned")]
+    [ValidateSet("FullReport", "WebPartsOnly")]
+    $Mode = "FullReport"
     )
 
     Write-Host "Connecting to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
     try
     {
-        Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        try
+        {
+            Get-PnPConnection | Out-Null
+            if(-not ((Get-PnPConnection).url.trimend("/") -eq $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))))
+            {
+                Disconnect-PnPOnline
+                Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+            }
+        }
+        catch
+        {
+            Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        }
     }
     catch
     {
-        write-host "$(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
+        write-host "Could not connect to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
     }
     Try
     {
@@ -55,13 +70,27 @@ function Get-SPOWebMigrationValidation
                 $WebEntry | add-member -MemberType NoteProperty -name "Number of Web Parts Matching" -value "False"
             }
             $WebEntry | Add-Member -MemberType NoteProperty -name "Source Visible Web Parts on Page" -value $Entry."Visible Web Parts on Page"
-            if($OpenWebPartCount = (Get-PnPWebPart -ServerRelativePageUrl (Get-PnPHomePage) | ? {$_.webpart.isclosed -eq $False}).count)
+            Try
             {
-                $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Number of visible webparts" -Value $OpenWebPartCount
+                if($OpenWebPartCount = (Get-PnPWebPart -ServerRelativePageUrl (Get-PnPHomePage) -ErrorAction SilentlyContinue | Where-Object {$_.webpart.isclosed -eq $False}).count)
+                {
+                    $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Number of visible webparts" -Value $OpenWebPartCount
+                }
+                else
+                {
+                    $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Number of visible webparts" -Value "0"
+                }
             }
-            else
+            catch
             {
-                $WebEntry | Add-Member -MemberType NoteProperty -Name "Destination Number of visible webparts" -Value "0"
+                if(Get-PnPFile (Get-PnPHomePage))
+                {
+                    Write-Host "Warning: homepage at $(Get-PnPHomePage) does not exist" -ForegroundColor Yellow
+                }
+                else
+                {
+                    throw $error[0]
+                }
             }
             if($Entry."Visible Web Parts on Page" -eq $OpenWebPartCount)
             {
@@ -71,26 +100,27 @@ function Get-SPOWebMigrationValidation
             {
                 $WebEntry | add-member -MemberType NoteProperty -name "Number of Visible Web Parts Matching" -value "False"
             }
-            $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Number of Lists" -value $entry."Number of Lists"
-            if($IncludeHidddenLists)
+            if($Mode -eq "FullReport")
             {
-                $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList).count
-            }
-            else
-            {
-                $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList | Where-Object {-not $_.hidden}).count
-            }
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Source Number of Lists" -value $entry."Number of Lists"
+                if($IncludeHidddenLists)
+                {
+                    $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList).count
+                }
+                else
+                {
+                    $WebEntry | Add-Member -MemberType NoteProperty -name "Destination Number of Lists" -Value (Get-PnPList | Where-Object {-not $_.hidden}).count
+                }
 
-            if($entry."Number of Lists" -eq $WebEntry."Destination Number of Lists")
-            {
-                $WebEntry | add-member -MemberType NoteProperty -name "Number of Lists Matching" -Value "True"
+                if($entry."Number of Lists" -eq $WebEntry."Destination Number of Lists")
+                {
+                    $WebEntry | add-member -MemberType NoteProperty -name "Number of Lists Matching" -Value "True"
+                }
+                else
+                {
+                    $WebEntry | add-member -MemberType NoteProperty -name "Number of Lists Matching" -Value "False"
+                }
             }
-            else
-            {
-                $WebEntry | add-member -MemberType NoteProperty -name "Number of Lists Matching" -Value "False"
-            }
-
-            Disconnect-PnPOnline
             Return $WebEntry
 
         }

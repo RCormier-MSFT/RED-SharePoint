@@ -11,8 +11,16 @@ function New-SMATCheckedOutFileSummaryReportBulkCheckIn
     [String]$AdminComment,
     [parameter(mandatory=$False, position=3, HelpMessage="This is the name of the output file")]
     [Validatescript({if($_.localpath.endswith(".csv")){$True}else{throw "`r`n`'OutputFile`' must be a csv file"}})]
-    [URI]$OutputFile=".\SMATCheckInSummary.csv"
+    [URI]$OutputFile="SMATCheckInSummary.csv"
     )
+
+    if(-not ($OutputFile.IsAbsoluteURI))
+    {
+        if(-not (Resolve-Path $OutputFile -ErrorAction SilentlyContinue))
+        {
+            $OutputFile = Join-Path (Get-Location | Select-Object -ExpandProperty path) $OutputFile.OriginalString
+        }
+    }
 
     $CheckedOutFiles = Import-Csv $InputFile.LocalPath
     $ThresholdColumn = $CheckedOutFiles | Get-Member | Where-Object {($_.membertype -eq "NoteProperty") -and ($_.name -like "Checked out More than*")} | Select-Object -ExpandProperty Name
@@ -22,7 +30,7 @@ function New-SMATCheckedOutFileSummaryReportBulkCheckIn
     }
     else
     {
-        [Array]$SitesToProcess = $CheckedOutFiles | Select-Object "SiteURL" -Unique
+        [Array]$SitesToProcess = $CheckedOutFiles | Select-Object "SiteURL" -Unique | Select-Object -ExpandProperty SiteURL
     }
     $FileReport = New-Object System.Collections.ArrayList
     foreach($site in $SitesToProcess)
@@ -75,6 +83,6 @@ function New-SMATCheckedOutFileSummaryReportBulkCheckIn
         $SPSite.Dispose()
     }
 
-    $FileReport | export-csv -Path $OutputFile.LocalPath -NoTypeInformation -Force
+    $FileReport | export-csv -Path ($OutputFile.LocalPath).Insert(($OutputFile.LocalPath.LastIndexOf(".")),"_$(Get-Date -Format MMddyy-hhmmss)")  -NoTypeInformation -Force
 
 }

@@ -34,10 +34,28 @@ function New-SPMigrationManifestValidationSummary
     if([String]::IsNullOrEmpty($OutputFile.LocalPath))
     {
         $OutputDirectory = New-Object Uri($SourceManifest, ".")
-        $OutputFile = Join-Path $OutputDirectory.LocalPath "\ValidationSummary_$($Mode).json"
+        [URI]$OutputFile = Join-Path $OutputDirectory.LocalPath "\$($SourceManifest.Segments.replace("%20"," ")[($SourceManifest.Segments.Count -1)].Substring(0,($SourceManifest.Segments.replace("%20"," ")[$SourceManifest.Segments.Count -1]).LastIndexOf(".")))_$(Get-Date -Format MMddyyyy-HH_mm_ss)_ValidationSummary_$($Mode).json"
     }
 
-    $SourceEntries = (Get-Content $SourceManifest.LocalPath | Out-String | ConvertFrom-Json)
+    if($host.Version.Major -lt 5)
+    {
+        [void][System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions")
+        $jsonserial= New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer
+        $jsonserial.MaxJsonLength = 67108864
+        [System.Object]$Results = $jsonserial.DeserializeObject((Get-Content $SourceManifest.LocalPath))
+
+        $SourceEntries = New-Object System.Collections.ArrayList
+        foreach($Entry in $Results)
+        {
+            $CurrentEntry = New-Object PSObject -Property $Entry
+            $SourceEntries.Add($CurrentEntry) | Out-Null
+        }
+
+    }
+    else
+    {
+        $SourceEntries = (Get-Content $SourceManifest.LocalPath | Out-String | ConvertFrom-Json)
+    }
     $UniqueSites = , $SourceEntries | Get-UniqueSitesFromSourceSiteMigrationManifest
     $ValidationSummary = New-Object System.Collections.Arraylist
     $ReportInfo = New-Object System.Object
@@ -73,12 +91,16 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($Entry.'Type of Entry' -eq "Web")
             {
-                if(($Mode -eq "Structure") -or ($Mode -eq "FullReport"))
+                if(($Mode -eq "Structure") -or ($Mode -eq "FullReport") -or ($Mode -eq "ItemCount"))
                 {
                     $Expression = "`$SummaryInfo = `$Entry | Get-SPOWebMigrationValidation -Credential `$Credential"
                     if($IncludeHiddenLists)
                     {
                         $Expression = "$($Expression) -IncludeHiddenLists"
+                    }
+                    if($Mode -eq "ItemCount")
+                    {
+                        $Expression = "$($Expression) -Mode `"WebPartsOnly`""
                     }
                     Invoke-Expression $Expression
 
@@ -124,7 +146,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($entry.'Type of Entry' -eq "Role")
             {
-                if(($Mode = "Permissions") -or ($Mode -eq "FullReport"))
+                if(($Mode -eq "Permissions") -or ($Mode -eq "FullReport"))
                 {
                     $SummaryInfo = $Entry | Get-SPOWebRoleValidation -Credential $Credential
                     $ValidationSummary.Add($SummaryInfo) | Out-Null
@@ -132,7 +154,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($Entry.'Type of Entry' -eq "Group")
             {
-                if(($Mode = "Permissions") -or ($mode -eq "FullReport"))
+                if(($Mode -eq "Permissions") -or ($mode -eq "FullReport"))
                 {
                     $Expression = "`$SummaryInfo = `$Entry | Get-SPOWebGroupValidation -Credential `$Credential"
                     if($GroupExclusionFile)
@@ -145,7 +167,7 @@ function New-SPMigrationManifestValidationSummary
             }
             elseif($entry.'Type of Entry' -eq "Group Mapping")
             {
-                if(($Mode = "Permissions") -or ($Mode -eq "FullReport"))
+                if(($Mode -eq "Permissions") -or ($Mode -eq "FullReport"))
                 {
                     $SummaryInfo = $Entry | Get-SPOWebGroupMappingValidation -Credential $Credential
                     $ValidationSummary.Add($SummaryInfo) | Out-Null

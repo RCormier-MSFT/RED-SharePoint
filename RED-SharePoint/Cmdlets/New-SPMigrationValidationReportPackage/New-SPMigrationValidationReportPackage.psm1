@@ -17,23 +17,43 @@ function New-SPMigrationValidationReportPackage
     }
     else
     {
-        $ValidationSummary = (Get-Content $SourceManifest.LocalPath -Raw | ConvertFrom-Json)
+        if($Host.Version.Major -lt 5)
+        {
+            [void][System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions")
+            $jsonserial= New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer
+            $jsonserial.MaxJsonLength = 67108864
+            [System.Object]$Results = $jsonserial.DeserializeObject((Get-Content $SourceManifest.LocalPath))
+
+            $ValidationSummary = New-Object System.Collections.ArrayList
+            foreach($Entry in $Results)
+            {
+                $CurrentEntry = New-Object PSObject -Property $Entry
+                $ValidationSummary.Add($CurrentEntry) | Out-Null
+            }
+
+        }
+        else
+        {
+            $ValidationSummary = (Get-Content $SourceManifest.LocalPath -Raw | ConvertFrom-Json)
+        }
+
         $Mode = $ValidationSummary | where-object {$_.'Type of Entry' -eq "ReportInfo"} | Select-Object -ExpandProperty Mode
         Write-Host "Report mode is $($Mode)" -ForegroundColor Yellow
-        if(($Mode = "FullReport") -or ($Mode = "Structure"))
+        if(($Mode -eq "FullReport") -or ($Mode -eq "Structure"))
         {
             $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Site"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Sites.csv") -NoTypeInformation -Force
             $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Web"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Webs.csv") -NoTypeInformation -Force
             Write-Host "Created Site and Web Report" -ForegroundColor Green
         }
-        if(($Mode = "FullReport") -or ($Mode = "ItemCount"))
+        if(($Mode -eq "FullReport") -or ($Mode -eq "ItemCount"))
         {
             $ValidationSummary | Where-Object {$_."Type of Entry" -eq "List"} | Export-Csv -Path $SourceManifest.LocalPath.replace(".json", "_Lists.csv") -NoTypeInformation -Force
-            Write-Host "Created Lists Report" -ForegroundColor Green
+            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Web"} | Export-Csv -Path $SourceManifest.LocalPath.Replace(".json", "_Groups_AfterContentMigration.csv") -NoTypeInformation -Force
+            Write-Host "Created Lists and Groups Reports" -ForegroundColor Green
         }
-        if(($Mode = "FullReport") -or ($Mode = "Permissions"))
+        if(($Mode -eq "FullReport") -or ($Mode -eq "Permissions"))
         {
-            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Group"} | Export-Csv -Path $SourceManifest.LocalPath.Replace(".json", "_groups.csv") -NoTypeInformation -Force
+            $ValidationSummary | Where-Object {$_."Type of Entry" -eq "Group"} | Export-Csv -Path $SourceManifest.LocalPath.Replace(".json", "_Groups.csv") -NoTypeInformation -Force
             Write-Host "Created Groups Report" -ForegroundColor Green
         }
     }

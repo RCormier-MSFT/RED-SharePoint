@@ -29,7 +29,7 @@ function Get-SPWebGroupsMigrationManifestInfo
             $GroupEntry | Add-Member -MemberType NoteProperty -Name "Members in Group" -Value "$($Group.Users.Count)"
             if($SPWeb.AssociatedVisitorGroup.Name -eq $Group.Name)
             {
-                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVistorGroup" -Value $True
+                $GroupEntry | Add-Member -MemberType NoteProperty -Name "IsAssociatedVisitorGroup" -Value $True
             }
             else
             {

@@ -31,8 +31,16 @@ function Get-SPWebMigrationManifestInfo
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Workflow Associations" -Value $SPWeb.WorkflowAssociations.count
     if($SPWeb.RootFolder.WelcomePage)
     {
-        $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -value ($SPWeb.GetFile($SPWeb.RootFolder.WelcomePage).GetLimitedWebPartManager([System.Web.UI.WebControls.Webparts.PersonalizationScope]::Shared).webparts.count)
-        $WebEntry | Add-Member -MemberType NoteProperty -Name "Visible Web Parts on Page" -value (($SPWeb.GetFile($SPWeb.RootFolder.WelcomePage).GetLimitedWebPartManager([System.Web.UI.WebControls.Webparts.PersonalizationScope]::Shared).webparts | Where-Object {$_.IsClosed -eq $False}).count)
+        Try
+        {
+            $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -value ($SPWeb.GetFile($SPWeb.RootFolder.WelcomePage).GetLimitedWebPartManager([System.Web.UI.WebControls.Webparts.PersonalizationScope]::Shared).webparts.count)
+            $WebEntry | Add-Member -MemberType NoteProperty -Name "Visible Web Parts on Page" -value (($SPWeb.GetFile($SPWeb.RootFolder.WelcomePage).GetLimitedWebPartManager([System.Web.UI.WebControls.Webparts.PersonalizationScope]::Shared).webparts | Where-Object {$_.IsClosed -eq $False}).count)
+        }
+        Catch
+        {
+            $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -Value "Welcome page $($SPWeb.RootFolder.WelcomePage) could not be found"
+            $WebEntry | Add-Member -MemberType NoteProperty -Name "Visible Web Parts on Page" -Value "Welcome page $($SPWeb.RootFolder.WelcomePage) could not be found"
+        }
     }
     else
     {

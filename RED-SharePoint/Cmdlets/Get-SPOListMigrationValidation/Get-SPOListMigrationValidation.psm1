@@ -11,7 +11,19 @@ Function Get-SPOListMigrationValidation
     Write-Host "Processing list $($Entry.'List Title')" -ForegroundColor Cyan
     try
     {
-        Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        try
+        {
+            Get-PnPConnection | Out-Null
+            if(-not ((Get-PnPConnection).url.trimend("/") -eq $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))))
+            {
+                Disconnect-PnPOnline
+                Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+            }
+        }
+        catch
+        {
+            Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        }
     }
     catch
     {
@@ -50,7 +62,6 @@ Function Get-SPOListMigrationValidation
                     $ListEntry | Add-Member -MemberType NoteProperty -name "List Workflow Associations Matching" -value "False"
                 }
 
-                Disconnect-PnPOnline
                 return $ListEntry
             }
             else
@@ -63,7 +74,6 @@ Function Get-SPOListMigrationValidation
                 $ListEntry | Add-Member -MemberType NoteProperty -name "List Title" -Value $entry.'List Title'
                 $ListEntry | Add-Member -MemberType NoteProperty -Name "List Not Found" -value "True"
                 $ListEntry | Add-Member -MemberType NoteProperty -Name "Source List Workflow Associations" -Value $Entry."Workflow Associations"
-                Disconnect-PnPOnline
             }
 
         }

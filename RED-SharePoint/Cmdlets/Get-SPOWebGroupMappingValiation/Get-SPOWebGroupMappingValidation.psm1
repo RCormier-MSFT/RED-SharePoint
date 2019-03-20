@@ -8,7 +8,26 @@ Function Get-SPOWebGroupMappingValidation
     [System.Management.Automation.PSCredential]$Credential
     )
 
-    Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+    try
+    {
+        try
+        {
+            Get-PnPConnection | Out-Null
+            if(-not ((Get-PnPConnection).url.trimend("/") -eq $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))))
+            {
+                Disconnect-PnPOnline
+                Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+            }
+        }
+        catch
+        {
+            Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        }
+    }
+    catch
+    {
+        write-host "Could not connect to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
+    }
     $GroupPermissions = Get-PnPGroupPermissions -Identity $Entry.'Group Name' -ErrorAction SilentlyContinue
     if($GroupPermissions.length -le 0)
     {

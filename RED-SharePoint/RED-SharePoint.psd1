@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.56'
+ModuleVersion = '1.0.0.73'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -96,6 +96,7 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\Cmdlets\Get-URIFromString\Get-URIFromString.psm1",
                 ".\Cmdlets\Get-WebsWithUniquePermissionsFromMigrationManifest\Get-WebsWithUniquePermissionsFromMigrationManifest.psm1",
                 ".\Cmdlets\New-BulkFileCheckIn\New-BulkFileCheckIn.psm1",
+                ".\Cmdlets\New-SMATCheckedOutFileSummaryReportBulkCheckIn\New-SMATCheckedOutFileSummaryReportBulkCheckIn.psm1",
                 ".\Cmdlets\New-SMATReportCheckedOutFilesEmail\New-SMATReportCheckedOutFilesEmail.psm1",
                 ".\Cmdlets\New-SMATReportCheckedOutFilesSummary\New-SMATReportCheckedOutFilesSummary.psm1",
                 ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",

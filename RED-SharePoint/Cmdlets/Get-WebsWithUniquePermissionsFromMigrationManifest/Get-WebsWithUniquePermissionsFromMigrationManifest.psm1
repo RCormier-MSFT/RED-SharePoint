@@ -10,7 +10,25 @@ function Get-WebsWithUniquePermissionsFromMigrationManifest
         [URI]$SourceManifest
     )
 
-    $SourceEntries = Get-Content $SourceManifest.localpath | ConvertFrom-Json
+    if($host.Version.Major -lt 5)
+    {
+        [void][System.Reflection.Assembly]::LoadWithPartialName("System.Web.Extensions")
+        $jsonserial= New-Object -TypeName System.Web.Script.Serialization.JavaScriptSerializer
+        $jsonserial.MaxJsonLength = 67108864
+        [System.Object]$Results = $jsonserial.DeserializeObject((Get-Content $SourceManifest.LocalPath))
+
+        $SourceEntries = New-Object System.Collections.ArrayList
+        foreach($Entry in $Results)
+        {
+            $CurrentEntry = New-Object PSObject -Property $Entry
+            $SourceEntries.Add($CurrentEntry) | Out-Null
+        }
+
+    }
+    else
+    {
+        $SourceEntries = (Get-Content $SourceManifest.LocalPath | Out-String | ConvertFrom-Json)
+    }
     $WebsWithUniquePermissions = ($SourceEntries | where-object {($_.'Type of Entry' -eq "Web") -and ($_.'Has Unique Permissions' -eq "True")} | Select-Object 'Web URL')
     Return $WebsWithUniquePermissions
 }

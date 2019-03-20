@@ -20,17 +20,43 @@ function Set-SPOAssociatedGroups
         [String]$AssociatedOwnerGroup
     )
 
-    Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credential
+    try
+    {
+        try
+        {
+            Get-PnPConnection | Out-Null
+            if(-not ((Get-PnPConnection).url.trimend("/") -eq $SiteURI.AbsoluteUri.TrimEnd("/")))
+            {
+                Disconnect-PnPOnline
+                Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credentials | Out-Null
+            }
+        }
+        catch
+        {
+            Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credentials | Out-Null
+        }
+    }
+    catch
+    {
+        write-host "Could not connect to web `'$($SiteURI.AbsoluteUri)`'"
+    }
     if(-not [String]::IsNullOrEmpty($AssociatedVisitorGroup))
     {
-        Set-PnPGroup -Identity (Get-PnPGroup $AssociatedVisitorGroup).ID -SetAssociatedGroup Visitors
+        Set-PnPGroup -Identity (Get-PnPGroup $AssociatedVisitorGroup).ID -SetAssociatedGroup Visitors -AddRole "Read"
     }
     if(-not [String]::IsNullOrEmpty($AssociatedMemberGroup))
     {
-        Set-PnPGroup -Identity (Get-PnPGroup $AssociatedMemberGroup).ID -SetAssociatedGroup Members
+        Try
+        {
+            Set-PnPGroup -Identity (Get-PnPGroup $AssociatedMemberGroup).ID -SetAssociatedGroup Members -AddRole "Edit"
+        }
+        Catch
+        {
+            Write-host "Could not set associated member group $($AssociatedMemberGroup) in site $($SiteURI.AbsoluteUri)" -ForegroundColor  Yellow
+        }
     }
     if(-not [String]::IsNullOrEmpty($AssociatedOwnerGroup))
     {
-        Set-PnPGroup -Identity (Get-PnPGroup $AssociatedOwnerGroup).ID -SetAssociatedGroup Owners
+        Set-PnPGroup -Identity (Get-PnPGroup $AssociatedOwnerGroup).ID -SetAssociatedGroup Owners -AddRole "Full Control"
     }
 }

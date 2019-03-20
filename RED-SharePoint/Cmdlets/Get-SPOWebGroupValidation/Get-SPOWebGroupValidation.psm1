@@ -18,19 +18,36 @@ Function Get-SPOWebGroupValidation
     {
         $GroupExclusions = Get-Content $GroupExclusionFile.LocalPath
     }
-    Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+    try
+    {
+        try
+        {
+            Get-PnPConnection | Out-Null
+            if(-not ((Get-PnPConnection).url.trimend("/") -eq $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))))
+            {
+                Disconnect-PnPOnline
+                Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+            }
+        }
+        catch
+        {
+            Connect-PnPOnline -Url $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/"))) -Credentials $Credential | Out-Null
+        }
+    }
+    catch
+    {
+        write-host "Could not connect to web $(($Entry.'Web URL').Replace($entry.'Source Site URL', $Entry.'Destination Site URL'.trimend("/")))"
+    }
     $WebGroup = Get-PnPGroup -Identity $Entry.'Group Name' -ErrorAction SilentlyContinue
     $WebGroupEntry = New-Object System.Object
     $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $Entry.'Source Site URL'
     $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -Value $Entry.'Destination Site URL'
-    $WebGroupEntry | Add-Member -MemberType NoteProperty -name "Web URL" -Value (Get-PnPConnection | Select-Object URL)
+    $WebGroupEntry | Add-Member -MemberType NoteProperty -name "Web URL" -Value (Get-PnPConnection | Select-Object -ExpandProperty URL)
     $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Group Name" -value $Entry.'Group Name'
     if($WebGroup)
     {
         $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Type of Entry" -Value "Group"
         $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Exists in Destination Site" -Value "True"
-        $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Source Members in Group" -Value $Entry.'Members in Group'
-        $WebGroupEntry | Add-Member -MemberType NoteProperty -Name "Destination Members in Group" -Value $WebGroup.Users.Count
         if($GroupExclusionFile)
         {
             if($GroupExclusions -imatch $Entry.'Group Name')
