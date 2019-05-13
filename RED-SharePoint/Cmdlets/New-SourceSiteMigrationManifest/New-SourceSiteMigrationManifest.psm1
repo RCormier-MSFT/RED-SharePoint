@@ -59,6 +59,7 @@ function New-SourceSiteMigrationManifest
         {
             [URI]$AllParameters["OutputFile"] = $InputFile.LocalPath.Replace(".csv",".json")
         }
+        $AllParameters["OutputFile"] = $AllParameters["OutputFile"].Replace(".json", "$(Get-Date -Format MMddyyyy-HH_mm_ss).json")
     }
     Process
     {
