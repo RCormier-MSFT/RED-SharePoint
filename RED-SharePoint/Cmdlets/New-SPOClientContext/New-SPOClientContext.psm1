@@ -1,4 +1,5 @@
 <#
+
 .SYNOPSIS
 
 Establishes a new client context with SharePoint Online Tenant
@@ -23,8 +24,11 @@ New-SPOClientContext -SiteUri https://example.sharpoint.com/sites/csomtest -Cred
 
 .NOTES
 
+Author:     Roger Cormier
+Company:    Microsoft
 
 #>
+
 
 Function New-SPOClientContext
 {

@@ -1,7 +1,35 @@
 <#
-Author: Roger Cormier
-Company: Microsoft
-Description: This cmdlet returns a list of all checked out files in a site collection
+.SYNOPSIS
+
+This cmdlet returns a list of all checked out files in a site collection
+
+
+.DESCRIPTION
+
+The Get-CheckedOutFilesInList (RED-SharePoint) cmdlet takes a SharePoint list of type Document Library and returns a list of checked out files.
+
+
+.PARAMETER List
+
+Specifies the URL of the SharePoint source Site Collection.
+
+
+.EXAMPLE 
+
+Get-SPList 'http://servername/lists/mylist' | Get-CheckedOutFilesInList 
+
+
+.EXAMPLE 
+
+$list = Get-SPList 'http://server_name/lists/mylist'
+Get-CheckedOutFilesInList -List $list
+
+
+.NOTES
+
+Author:     Roger Cormier
+Company:    Microsoft
+
 #>
 
 function Get-CheckedOutFilesInList

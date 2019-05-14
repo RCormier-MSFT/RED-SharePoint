@@ -1,7 +1,44 @@
 <#
-Author: Roger Cormier
-Company: Microsoft
-Description: This cmdlet compares features across two site collections, or two webs
+.SYNOPSIS
+
+This cmdlet compares features across two site collections, or two webs
+
+.DESCRIPTION
+
+The Compare-SPFeatures (RED-SharePoint) cmdlet allows you the differences with features between two sites of two webs.
+
+
+.PARAMETER SourceSiteCollection
+
+Specifies the URL of the SharePoint source Site Collection.
+
+.PARAMETER TargetSiteCollection
+
+Specifies the URL of the SharePoint target Site Collection.
+
+.PARAMETER SourceWeb
+
+Specifies the URL of the SharePoint source web.
+
+.PARAMETER TargetWeb
+
+Specifies the URL of the SharePoint target web.
+
+
+.EXAMPLE 
+
+Compare-SPFeatures -SourceSiteCollection https://example.sharpoint.com/sites/src01 -TargetSiteCollection https://example.sharepoint.com/sites/tgt01
+
+.EXAMPLE 
+
+Compare-SPFeatures -SourceWeb https://example.sharpoint.com/sites/src01/web1 -TargetWeb https://example.sharepoint.com/sites/tgt01/web3
+
+
+.NOTES
+
+Author:     Roger Cormier
+Company:    Microsoft
+
 #>
 
 function Compare-SPFeatures
