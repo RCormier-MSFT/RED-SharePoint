@@ -42,7 +42,7 @@ Process
             $FileswithNoCheckedInVersions = $list.CheckedOutFiles
             foreach($File in $FileswithNoCheckedInVersions)
             {
-                $Web.Getfile($File.url).CheckIn($AdminMessage)
+                $Web.GetFile($File.url.Replace($web.url, "").substring(1)).Checkin($AdminMessage)
             }
         }
         $web.dispose()
