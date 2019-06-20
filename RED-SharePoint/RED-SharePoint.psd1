@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.76'
+ModuleVersion = '1.0.0.80'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -102,6 +102,7 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\Cmdlets\New-SMATReportIndividualUserPackage\New-SMATReportIndividualUserPackage.psm1",
                 ".\Cmdlets\New-SMATReportSiteOwnerPackage\New-SMATReportSiteOwnerPackage.psm1",
                 ".\cmdlets\New-SourceSiteMigrationManifest\New-SourceSiteMigrationManifest.psm1",
+                ".\Cmdlets\New-SPCheckedOutFileSummary\New-SPCheckedOutFileSummary.psm1",
                 ".\cmdlets\New-SPMigrationManifestValidationSummary\New-SPMigrationManifestValidationSummary.psm1",
                 ".\cmdlets\New-SPMigrationValidationReportPackage\New-SPMigrationValidationReportPackage.psm1",
                 ".\cmdlets\New-SPOBulkAssociatedGroupsUpdate\New-SPOBulkAssociatedGroupsUpdate.psm1",

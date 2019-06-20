@@ -28,12 +28,12 @@ function Set-SPOAssociatedGroups
             if(-not ((Get-PnPConnection).url.trimend("/") -eq $SiteURI.AbsoluteUri.TrimEnd("/")))
             {
                 Disconnect-PnPOnline
-                Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credentials | Out-Null
+                Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credential | Out-Null
             }
         }
         catch
         {
-            Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credentials | Out-Null
+            Connect-PnPOnline -Url $SiteURI.AbsoluteUri -Credentials $Credential | Out-Null
         }
     }
     catch

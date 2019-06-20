@@ -12,7 +12,7 @@ function New-SMATReportCheckedOutFilesEmail
     [String]$SMTPFromAddress,
     [parameter(Mandatory=$True, Position=4)]
     [String]$SMTPReplyToAddress,
-    [parameter(Mandatory=$True, Position=5)]
+    [parameter(Mandatory=$False, Position=5)]
     [String]$SMTPCCAddress,
     [parameter(Mandatory=$True, Position=6)]
     [URI]$SMTPBodyFile,
@@ -25,7 +25,10 @@ function New-SMATReportCheckedOutFilesEmail
     $Email.From = $SMTPFromAddress
     $Email.ReplyTo = $SMTPReplyToAddress
     $Email.To.Add($SMTPToAddress)
-    $Email.CC.Add($SMTPCCAddress)
+    if(-not ([String]::IsNullOrEmpty($SMTPCCAddress)))
+    {
+        $Email.CC.Add($SMTPCCAddress)
+    }
     $Email.Subject = $SMTPMailSubject
     $Email.Body = Get-Content -Path $SMTPBodyFile.localpath
     $Email.IsBodyHtml = $true

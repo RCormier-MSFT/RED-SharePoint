@@ -95,7 +95,13 @@ function New-SMATReportIndividualUserPackage
 
         if($Sendmail)
         {
-            New-SMATReportCheckedOutFilesEmail -SMTPServer $PSBoundParameters.SMTPServer -SMTPMailSubject  "Individual user checked out files report for user $($Username)" -SMTPToAddress (Get-ADUser -Filter "SAMAccountName -eq '$($Username.Substring($Username.IndexOf("\")+1))'" | Select-Object -ExpandProperty UserPrincipalName) -SMTPFromAddress $PSBoundParameters.SMTPFromAddress -SMTPReplyToAddress $PSBoundParameters.SMTPReplyToAddress -SMTPCCAddress $PSBoundParameters.SMTPCCAddress -SMTPBodyFile $PSBoundParameters.SMTPBodyFile.localpath -AttachmentFile $OutputFile
+            $Expression = "New-SMATReportCheckedOutFilesEmail -SMTPServer `$PSBoundParameters.SMTPServer -SMTPMailSubject  `"Individual user checked out files report for user `$(`$Username)`" -SMTPToAddress (Get-ADUser -Filter `"SAMAccountName -eq '`$(`$Username.Substring(`$Username.IndexOf(`"\`")+1))'`" | Select-Object -ExpandProperty UserPrincipalName) -SMTPFromAddress `$PSBoundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSBoundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSBoundParameters.SMTPBodyFile.localpath -AttachmentFile `$OutputFile"
+            if($PSBoundParameters.SMTPCCAddress)
+            {
+                $Expression = "$($Expression) -SMTPCCAddress `$PSBoundParameters.SMTPCCAddress"
+            }
+            Invoke-Expression $Expression
+
         }
 
     }

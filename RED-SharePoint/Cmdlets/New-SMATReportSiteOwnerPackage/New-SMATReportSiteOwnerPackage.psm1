@@ -17,7 +17,10 @@ function New-SMATReportSiteOwnerPackage
     [Parameter(Mandatory=$False, Position=2)]
     [URI]$OutputDirectory,
     [Parameter(Mandatory=$False, Position=3)]
-    [Switch]$SendMail
+    [Switch]$SendMail,
+    [Parameter(Mandatory=$True, Position=4)]
+    [ValidateSet("HTML", "CSV")]
+    [String]$Format="HTML"
     )
     DynamicParam
     {
@@ -94,16 +97,34 @@ function New-SMATReportSiteOwnerPackage
     }
     Process
     {
-        $Username = $SiteOwner.Substring($SiteOwner.IndexOf("|")+1, ($SiteOwner.IndexOf("]") - $SiteOwner.IndexOf("|")-1))
+        $Username = $SiteOwner.Substring($SiteOwner.IndexOf("|")+1)
         $OutputFile= Join-Path $OutputDirectory.LocalPath ($Username.Replace("\","_")+"_SiteOwnerReport.csv")
         $OwnerFiles = Import-Csv $InputFile.LocalPath | Where-Object {$_.SiteOwner -like "*$($SiteOwner)"} | Select-Object SiteURL, File, CheckedOutUser
         write-host $OwnerFiles.count
-        $OwnerFiles | Export-Csv -Path $OutputFile  -NoTypeInformation -Force
+        if($Format -match "CSV")
+        {
+            $OwnerFiles | Export-Csv -Path $OutputFile  -NoTypeInformation -Force
+        }
+        else
+        {
+            foreach($Entry in $OwnerFiles)
+            {
+                $OwnerFiles[$OwnerFiles.indexof($Entry)].file = "<a href=`"$($Entry.File)`"</a>"
+                Add-Type -AssemblyName System.Web
+                [System.Web.HttpUtility]::HtmlDecode(($OwnerFiles | ConvertTo-Html)) | Out-File $OutputFile.Replace(".csv", ".html") -Force
+            }
+        }
+
 
         if($SendMail)
         {
-            New-SMATReportCheckedOutFilesEmail -SMTPServer $PSBoundParameters.SMTPServer -SMTPMailSubject  "Site Owner checked out files report for user $($Username)" -SMTPToAddress (Get-ADUser -Filter "SAMAccountName -eq '$($Username.Substring($Username.IndexOf("\")+1))'" | Select-Object -ExpandProperty UserPrincipalName) -SMTPFromAddress $PSBoundParameters.SMTPFromAddress -SMTPReplyToAddress $PSBoundParameters.SMTPReplyToAddress -SMTPCCAddress $PSBoundParameters.SMTPCCAddress -SMTPBodyFile $PSBoundParameters.SMTPBodyFile.localpath -AttachmentFile $OutputFile
+            $Expression = "New-SMATReportCheckedOutFilesEmail -SMTPServer `$PSBoundParameters.SMTPServer -SMTPMailSubject  `"Site Owner checked out files report for user `$(`$Username)`" -SMTPToAddress (Get-ADUser -Filter `"SAMAccountName -eq '`$(`$Username.Substring(`$Username.IndexOf(`"\`")+1))'`" | Select-Object -ExpandProperty UserPrincipalName) -SMTPFromAddress `$PSBoundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSBoundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSBoundParameters.SMTPBodyFile.localpath -AttachmentFile `$OutputFile"
         }
+        if($PSBoundParameters.SMTPCCAddress)
+        {
+            $Expression = "$($Expression) -SMTPCCAddress `$PSBoundParameters.SMTPCCAddress"
+        }
+        Invoke-Expression $Expression
 
     }
     end
