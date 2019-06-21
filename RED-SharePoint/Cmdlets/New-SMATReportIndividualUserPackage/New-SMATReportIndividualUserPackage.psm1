@@ -17,7 +17,10 @@ function New-SMATReportIndividualUserPackage
     [Parameter(Mandatory=$False, Position=2)]
     [URI]$OutputDirectory,
     [parameter(Mandatory=$False, Position=3, ParameterSetName="SendMail")]
-    [Switch]$SendMail
+    [Switch]$SendMail,
+    [Parameter(Mandatory=$True, Position=4)]
+    [ValidateSet("HTML", "CSV")]
+    [String]$Format="HTML"
     )
     DynamicParam
     {
@@ -91,7 +94,20 @@ function New-SMATReportIndividualUserPackage
         $OutputFile = Join-Path $OutputDirectory.LocalPath "$($Username.replace("\","_")).csv"
 
         $UserFiles = Import-Csv $InputFile.LocalPath | Where-Object {$_.CheckedOutUser -like "*$($Username)*"} | Select-Object SiteURL, File
-        $UserFiles | Export-Csv -Path $OutputFile  -NoTypeInformation -Force
+
+        if($Format -match "CSV")
+        {
+            $UserFiles | Export-Csv -Path $OutputFile  -NoTypeInformation -Force
+        }
+        else
+        {
+            foreach($Entry in $UserFiles)
+            {
+                $UserFiles[$UserFiles.indexof($Entry)].file = "<a href=`"$($Entry.File)`">$($Entry.File)</a>"
+                Add-Type -AssemblyName System.Web
+                [System.Web.HttpUtility]::HtmlDecode(($UserFiles | ConvertTo-Html)) | Out-File $OutputFile.Replace(".csv", ".html") -Force | Out-Null
+            }
+        }
 
         if($Sendmail)
         {

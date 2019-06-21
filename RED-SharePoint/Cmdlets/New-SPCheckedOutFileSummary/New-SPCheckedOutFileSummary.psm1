@@ -39,6 +39,11 @@ Function New-SPCheckedOutFilesSummary
             $SMTPBodyFileAttribute.Mandatory = $True
             $SMTPBodyFileAttribute.Position = 8
             $SMTPBodyFileAttribute.ParameterSetName = "SendMail"
+            $FileFormatAttribute = New-Object System.Management.Automation.ParameterAttribute
+            $FileFormatAttribute.HelpMessage = "Specify the type of file you would like to provide to end-users"
+            $FileFormatAttribute.Mandatory = $True
+            $FileFormatAttribute.Position = 9
+            $FileFormatAttribute.ParameterSetName = "SendMail"
             $SMTPServerAttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
             $SMTPServerAttributeCollection.Add($SMTPServerAttribute)
             $SMTPFromAddressAttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
@@ -49,17 +54,24 @@ Function New-SPCheckedOutFilesSummary
             $SMTPCCAddressAttributeCollection.Add($SMTPCCAddressAttribute)
             $SMTPBodyFileAttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
             $SMTPBodyFileAttributeCollection.Add($SMTPBodyFileAttribute)
+            $FileFormatAttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
+            $FileFormatAttributeCollection.Add($FileFormatAttribute)
+            $FileFormatValidationOptions=@("CSV", "HTML")
+            $FileFormatValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($FileFormatValidationOptions)
+            $FileFormatAttributeCollection.Add($FileFormatValidateSetAttribute)
             $SMTPServerParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPServer', [String], $SMTPServerAttributeCollection)
             $SMTPFromAddressParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPFromAddress', [String], $SMTPFromAddressAttributeCollection)
             $SMTPReplyToAddressParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPReplyToAddress', [String], $SMTPReplyToAddressAttributeCollection)
             $SMTPCCAddressParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPCCAddress', [String], $SMTPCCAddressAttributeCollection)
             $SMTPBodyFileParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPBodyFile', [URI], $SMTPBodyFileAttributeCollection)
+            $FormatParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Format', [String], $FileFormatAttributeCollection)
             $paramDictionary = new-object System.Management.Automation.RuntimeDefinedParameterDictionary
             $paramDictionary.Add('SMTPServer', $SMTPServerParam)
             $paramDictionary.Add('SMTPFromAddress', $SMTPFromAddressParam)
             $paramDictionary.Add('SMTPReplyToAddress', $SMTPReplyToAddressParam)
             $paramDictionary.Add('SMTPCCAddress', $SMTPCCAddressParam)
             $paramDictionary.Add('SMTPBodyFile', $SMTPBodyFileParam)
+            $paramDictionary.Add('Format', $FormatParam)
             return $paramDictionary
         }
     }
@@ -133,7 +145,7 @@ Function New-SPCheckedOutFilesSummary
             $UniqueUsers = Get-SMATReportUniqueUsers -InputFile $OutputFile
             foreach($User in $UniqueUsers)
             {
-                $Expression = "New-SMATReportIndividualUserPackage -InputFile `$OutputFile -User `$User -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile"
+                $Expression = "New-SMATReportIndividualUserPackage -InputFile `$OutputFile -User `$User -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile -format `$Format"
                 if($PSBoundParameters.SMTPCCAddress)
                 {
                     $Expression = "$($Expression) -SMTPCCAddress `$PSboundParameters.SMTPCCAddress"
@@ -144,7 +156,7 @@ Function New-SPCheckedOutFilesSummary
         }
         if($EmailsToSend -match "SiteOwner")
         {
-            $Expression = "New-SMATReportSiteOwnerPackage -InputFile `$OutputFile -SiteOwner `$(`$CurrentSPSite.Owner.Userlogin) -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile"
+            $Expression = "New-SMATReportSiteOwnerPackage -InputFile `$OutputFile -SiteOwner `$(`$CurrentSPSite.Owner.Userlogin) -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile -format `$Format"
             if($PSBoundParameters.SMTPCCAddress)
             {
                 $Expression = "$($Expression) -SMTPCCAddress `$PSboundParameters.SMTPCCAddress"

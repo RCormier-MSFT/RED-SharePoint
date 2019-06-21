@@ -109,9 +109,9 @@ function New-SMATReportSiteOwnerPackage
         {
             foreach($Entry in $OwnerFiles)
             {
-                $OwnerFiles[$OwnerFiles.indexof($Entry)].file = "<a href=`"$($Entry.File)`"</a>"
+                $OwnerFiles[$OwnerFiles.indexof($Entry)].file = "<a href=`"$($Entry.File)`">$($Entry.File)</a>"
                 Add-Type -AssemblyName System.Web
-                [System.Web.HttpUtility]::HtmlDecode(($OwnerFiles | ConvertTo-Html)) | Out-File $OutputFile.Replace(".csv", ".html") -Force
+                [System.Web.HttpUtility]::HtmlDecode(($OwnerFiles | ConvertTo-Html)) | Out-File $OutputFile.Replace(".csv", ".html") -Force | Out-Null
             }
         }
 
