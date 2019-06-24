@@ -145,7 +145,7 @@ Function New-SPCheckedOutFilesSummary
             $UniqueUsers = Get-SMATReportUniqueUsers -InputFile $OutputFile
             foreach($User in $UniqueUsers)
             {
-                $Expression = "New-SMATReportIndividualUserPackage -InputFile `$OutputFile -User `$User -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile -format `$Format"
+                $Expression = "New-SMATReportIndividualUserPackage -InputFile `$OutputFile -User `$User -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile -format `$PSBoundParameters.Format"
                 if($PSBoundParameters.SMTPCCAddress)
                 {
                     $Expression = "$($Expression) -SMTPCCAddress `$PSboundParameters.SMTPCCAddress"
@@ -156,7 +156,7 @@ Function New-SPCheckedOutFilesSummary
         }
         if($EmailsToSend -match "SiteOwner")
         {
-            $Expression = "New-SMATReportSiteOwnerPackage -InputFile `$OutputFile -SiteOwner `$(`$CurrentSPSite.Owner.Userlogin) -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile -format `$Format"
+            $Expression = "New-SMATReportSiteOwnerPackage -InputFile `$OutputFile -SiteOwner `$(`$CurrentSPSite.Owner.Userlogin) -OutputDirectory `$OutputDirectory -SendMail -SMTPServer `$PSboundParameters.SMTPServer -SMTPFromAddress `$PSboundParameters.SMTPFromAddress -SMTPReplyToAddress `$PSboundParameters.SMTPReplyToAddress -SMTPBodyFile `$PSboundParameters.SMTPBodyFile -format `$PSBoundParameters.Format"
             if($PSBoundParameters.SMTPCCAddress)
             {
                 $Expression = "$($Expression) -SMTPCCAddress `$PSboundParameters.SMTPCCAddress"
