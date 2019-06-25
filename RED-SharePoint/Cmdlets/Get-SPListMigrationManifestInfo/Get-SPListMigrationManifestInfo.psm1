@@ -1,7 +1,23 @@
 <#
-Author:Roger Cormier
-Company:Microsoft
-Description: This cmdlet will return inforamtion about an SPList that will be important in determining the success level of a migration to SharePoint Online
+.SYNOPSIS
+
+This cmdlet will return information about an SPList that will be important in determining the success level of a migration to SharePoint Online
+
+.DESCRIPTION
+
+The Get-SPListMigrationManifestInfo (RED-SharePoint) cmdlet takes a SharePoint list of type Document Library and returns a list of checked out files.
+
+.PARAMETER InputFile
+
+Takes the full path to the SMAT report csv file
+
+.EXAMPLE 
+
+Get-SMATReportUniqueUsers "C:\Support\Reports\SMATReportOne.csv" 
+
+.NOTES
+Author: Roger Cormier
+Company: Microsoft
 #>
 function Get-SPListMigrationManifestInfo
 {

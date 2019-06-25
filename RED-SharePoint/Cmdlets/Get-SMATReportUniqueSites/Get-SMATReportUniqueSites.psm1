@@ -1,7 +1,22 @@
 <#
-Author:Roger Cormier
-Company:Microsoft
-Description: This cmdlet will parse through a SMAT Checked Out Files report (in csv) and Return the uniques sites
+.SYNOPSIS
+This cmdlet will parse through a SMAT Checked Out Files report (in csv) and Return the unique sites
+
+.DESCRIPTION
+
+The Get-SMATReportUniqueSites (RED-SharePoint) cmdlet takes a SharePoint Migration Assessment Tool (SMAT) Report csv file and returns a list of unique sites
+
+.PARAMETER InputFile
+
+Takes the full path to the SMAT report csv file
+
+.EXAMPLE 
+
+Get-SMATReportUniqueSites "C:\Support\Reports\SMATReportOne.csv" 
+
+.NOTES
+Author: Roger Cormier
+Company: Microsoft
 #>
 
 function Get-SMATReportUniqueSites

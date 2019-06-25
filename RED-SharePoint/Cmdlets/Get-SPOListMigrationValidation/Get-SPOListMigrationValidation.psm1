@@ -1,3 +1,30 @@
+<#
+.SYNOPSIS
+
+This cmdlet will return information about an SPList that will be important in determining the success level of a migration to SharePoint Online
+
+.DESCRIPTION
+
+The Get-SPOListMigrationValidation (RED-SharePoint) cmdlet takes an object where 'Type of Entry' property is a List. It will connect to the list using PNPOnline PowerShell to compare source and destination list information (item count, workflow associations if the list if found
+
+.PARAMETER Entry
+
+Takes a object from a source manifest .JSON file
+
+.PARAMETER Credential
+
+Takes a PSCredential to access SharePoint Online
+
+
+.EXAMPLE 
+
+$OjbectEntry | Get-SPOListMigrationValidation -Credential $Credential
+
+.NOTES
+Author: Roger Cormier
+Company: Microsoft
+#>
+
 Function Get-SPOListMigrationValidation
 {
     [cmdletbinding()]
