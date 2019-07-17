@@ -20,6 +20,14 @@ function Get-SPWebMigrationManifestInfo
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Title" -Value $SPWeb.Title
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Web URL" -Value $SPWeb.Url
     $WebEntry | Add-Member -MemberType NoteProperty -Name "Has Unique Permissions" -Value $SPWeb.HasUniquePerm
+    if($SPWeb.HasUniquePerm)
+    {
+        $WebEntry | Add-Member -MemberType NoteProperty -Name "Access Requests Enabled" -Value $SPWeb.RequestAccessEnabled.ToString()
+        if($SPWeb.RequestAccessEnabled.ToString() -eq "True")
+        {
+            $WebEntry | Add-Member -MemberType NoteProperty -Name "Access Request Email" -Value $SPWeb.RequestAccessEmail
+        }
+    }
     if($IncludeHidddenLists)
     {
         $WebEntry | Add-Member -MemberType NoteProperty -Name "Number of Lists" -Value $SPWeb.lists.Count

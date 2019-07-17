@@ -99,7 +99,7 @@ function New-SMATReportSiteOwnerPackage
     {
         $Username = $SiteOwner.Substring($SiteOwner.IndexOf("|")+1)
         $OutputFile= Join-Path $OutputDirectory.LocalPath ($Username.Replace("\","_")+"_SiteOwnerReport.csv")
-        $OwnerFiles = Import-Csv $InputFile.LocalPath | Where-Object {$_.SiteOwner -like "*$($SiteOwner)"} | Select-Object SiteURL, File, CheckedOutUser
+        $OwnerFiles = Import-Csv $InputFile.LocalPath | Where-Object {$_.SiteOwner -like "*$($SiteOwner)"} | Select-Object SiteURL, File, CheckedOutUser, SharePointUserSIDFoundInAD
         write-host $OwnerFiles.count
         if($Format -match "CSV")
         {
@@ -109,9 +109,10 @@ function New-SMATReportSiteOwnerPackage
         {
             foreach($Entry in $OwnerFiles)
             {
+                $Outputfile = $OutputFile.Replace(".csv", ".html")
                 $OwnerFiles[$OwnerFiles.indexof($Entry)].file = "<a href=`"$($Entry.File)`">$($Entry.File)</a>"
                 Add-Type -AssemblyName System.Web
-                [System.Web.HttpUtility]::HtmlDecode(($OwnerFiles | ConvertTo-Html)) | Out-File $OutputFile.Replace(".csv", ".html") -Force | Out-Null
+                [System.Web.HttpUtility]::HtmlDecode(($OwnerFiles | ConvertTo-Html)) | Out-File $OutputFile -Force | Out-Null
             }
         }
 

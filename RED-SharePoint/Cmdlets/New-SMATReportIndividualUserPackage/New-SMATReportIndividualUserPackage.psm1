@@ -92,8 +92,15 @@ function New-SMATReportIndividualUserPackage
         }
         $Username = $User.Substring($User.IndexOf("|")+1, ($User.IndexOf("]") - $User.IndexOf("|")-1))
         $OutputFile = Join-Path $OutputDirectory.LocalPath "$($Username.replace("\","_")).csv"
-
-        $UserFiles = Import-Csv $InputFile.LocalPath | Where-Object {$_.CheckedOutUser -like "*$($Username)*"} | Select-Object SiteURL, File
+        $AllInput = Import-CSV $InputFile.LocalPath
+        if(($AllInput | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name) -match "SharePointUserSIDFoundInAD" )
+        {
+            $UserFiles = $AllInput | Where-Object {($_.CheckedOutUser -like "*$($Username)*") -and ($_.SharePointUserSIDFoundInAD -eq "Yes")}
+        }
+        else
+        {
+            $UserFiles = $AllInput | Where-Object {$_.CheckedOutUser -like "*$($Username)*"}
+        }
 
         if($Format -match "CSV")
         {
@@ -101,12 +108,48 @@ function New-SMATReportIndividualUserPackage
         }
         else
         {
-            foreach($Entry in $UserFiles)
+            $Header = @"
+<style>
+TABLE {border-width: 1px; border-style: solid; border-color: black; border-collapse: collapse;}
+TD {border-width: 1px; padding: 3px; border-style: solid; border-color: black;}
+</style>
+"@
+            $Outputfile = $OutputFile.Replace(".csv",".html")
+            $OutputTable = New-Object System.Collections.Arraylist
+            if((Import-CSV $InputFile.LocalPath | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty name) -match "ListID")
             {
-                $UserFiles[$UserFiles.indexof($Entry)].file = "<a href=`"$($Entry.File)`">$($Entry.File)</a>"
-                Add-Type -AssemblyName System.Web
-                [System.Web.HttpUtility]::HtmlDecode(($UserFiles | ConvertTo-Html)) | Out-File $OutputFile.Replace(".csv", ".html") -Force | Out-Null
+                foreach($Entry in $UserFiles)
+                {
+                    $TableInfo = New-Object System.Object
+                    $TableInfo | Add-Member -MemberType NoteProperty -Name SiteURL -Value "$($Entry.SiteURL)"
+                    $TableInfo | Add-Member -MemberType NoteProperty -name WebURL -value "$($Entry.WebURL)"
+                    $TableInfo | Add-Member -MemberType NoteProperty -name "Check-in Link" -Value "<a href=`"$($Entry.WebURL)/_layouts/15/checkin.aspx?List={$($Entry.ListID)}&filename=$($Entry.File.substring($Entry.file.indexof("/", $Entry.File.Indexof("//")+2)))`">$($Entry.File)</a>"
+                    $OutputTable.Add($TableInfo) | Out-Null
+                    if($TableInfo)
+                    {
+                        Remove-Variable -Name TableInfo
+                    }
+                }
             }
+            else
+            {
+                foreach($Entry in $UserFiles)
+                {
+                    $TableInfo = new-object System.Object
+                    $TableInfo | Add-Member -MemberType NoteProperty -Name SiteURL -Value "$($Entry.SiteURL)"
+                    $TableInfo | Add-Member -MemberType NoteProperty -Name WebURL -value "$($Entry.WebURL)"
+                    $TableInfo | Add-Member -MemberType NoteProperty -Name FileURL -Value "<a href=`"$($Entry.File)`">$($Entry.File)</a>"
+                    $OutputTable.Add($TableInfo) | Out-Null
+                    if($TableInfo)
+                    {
+                        Remove-Variable -Name TableInfo
+                    }
+                }
+
+
+            }
+            Add-Type -AssemblyName System.Web
+            [System.Web.HttpUtility]::HtmlDecode(($OutputTable | ConvertTo-Html -As Table -Head $Header)) | Out-File $OutputFile -Force | Out-Null
         }
 
         if($Sendmail)

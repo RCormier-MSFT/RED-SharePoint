@@ -8,17 +8,20 @@ Function New-SPCheckedOutFilesSummary
     [URI]$OutputDirectory,
     [parameter(mandatory=$True, position=2, HelpMessage="The emails to generate from the summary")]
     [ValidateSet("None","UserOnly", "SiteOwnerOnly","UserAndSiteOwner")]
-    [String]$EmailsToSend
+    [String]$EmailsToSend,
+    [parameter(mandatory=$False, position=3, HelpMessage="Use this switch to indicate that you have multiple domains")]
+    [Switch]$MultiDomain
     )
     DynamicParam
     {
+        $paramDictionary = new-object System.Management.Automation.RuntimeDefinedParameterDictionary
         if (-not ([String]::IsNullOrEmpty($EmailsToSend)) -and ($EmailsToSend -ne "None"))
         {
             $SMTPServerAttribute = New-Object System.Management.Automation.ParameterAttribute
             $SMTPServerAttribute.HelpMessage = "Please specify the SMTP Server:"
             $SMTPServerAttribute.Mandatory = $True
             $SMTPServerAttribute.Position = 4
-            $smtpserverAttribute.ParameterSetName = "SendMail"
+            $smtpServerAttribute.ParameterSetName = "SendMail"
             $SMTPFromAddressAttribute = New-Object System.Management.Automation.ParameterAttribute
             $SMTPFromAddressAttribute.HelpMessage = "Please enter the SMTP From Address:"
             $SMTPFromAddressAttribute.Mandatory = $True
@@ -65,15 +68,30 @@ Function New-SPCheckedOutFilesSummary
             $SMTPCCAddressParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPCCAddress', [String], $SMTPCCAddressAttributeCollection)
             $SMTPBodyFileParam = New-Object System.Management.Automation.RuntimeDefinedParameter('SMTPBodyFile', [URI], $SMTPBodyFileAttributeCollection)
             $FormatParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Format', [String], $FileFormatAttributeCollection)
-            $paramDictionary = new-object System.Management.Automation.RuntimeDefinedParameterDictionary
             $paramDictionary.Add('SMTPServer', $SMTPServerParam)
             $paramDictionary.Add('SMTPFromAddress', $SMTPFromAddressParam)
             $paramDictionary.Add('SMTPReplyToAddress', $SMTPReplyToAddressParam)
             $paramDictionary.Add('SMTPCCAddress', $SMTPCCAddressParam)
             $paramDictionary.Add('SMTPBodyFile', $SMTPBodyFileParam)
             $paramDictionary.Add('Format', $FormatParam)
-            return $paramDictionary
+
         }
+        if($MultiDomain)
+        {
+            $MultiDomainCSVAttribute = New-Object System.Management.Automation.ParameterAttribute
+            $MultiDomainCSVAttribute.HelpMessage = "Specify the file that contains information about your domains"
+            $MultiDomainCSVAttribute.Mandatory = $False
+            $MultiDomainCSVAttribute.Position = 10
+            $MultiDomainCSVAttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
+            $MultiDomainCSVAttributeCollection.Add($MultiDomainCSVAttribute)
+            $MultiDomainValidateScriptAttribute = New-Object -TypeName System.Management.Automation.ValidateScriptAttribute([System.Management.Automation.ScriptBlock]::Create("if(`$_.localpath.endswith(`".csv`")){`$True}else{Throw `"`$MultiDomainCSV must be a CSV file`"}"))
+            $MultiDomainCSVAttributeCollection.Add($MultiDomainValidateScriptAttribute)
+            $MultiDomainCSVParam = New-Object System.Management.Automation.RuntimeDefinedParameter('MultiDomainCSV', [URI], $MultiDomainCSVAttributeCollection)
+            $paramDictionary.Add('MultiDomainCSV', $MultiDomainCSVParam)
+
+
+        }
+        return $paramDictionary
     }
     Begin
     {
@@ -88,11 +106,20 @@ Function New-SPCheckedOutFilesSummary
                 New-Item -Path $OutputDirectory.AbsolutePath -ItemType Directory | Out-Null
             }
             $OutputFile = (join-path $OutputDirectory.AbsolutePath "$(Get-Date -Format MM-dd-yyyy)_$($SiteURL.originalstring.Substring($SiteURL.originalstring.LastIndexOf("//")+2).replace(".","_").replace("/","_"))CheckedOutFiles_Master.csv")
+            if($MultiDomain -and (-not ($PSBoundParameters.MultiDomainCSV)))
+            {
+                $AllDomainInfo = Get-DomainsFromADForest
+            }
+            elseif($MultiDomain -and (-not [String]::IsNullOrEmpty($PSBoundParameters.MultiDomainCSV.localpath)))
+            {
+                $AllDomainInfo = Import-Csv $PSBoundParameters.MultiDomainCSV.localpath
+                write-host $PSBoundParameters.multidomaincsv.localpath
+            }
 
     }
     Process
     {
-        $CurrentSPSite = Get-SPSite $SiteURL
+        $CurrentSPSite = Get-SPSite $SiteURL.OriginalString
         if(-not ([String]::IsNullOrEmpty($currentSPSite.url)))
         {
             Write-Progress -Activity "Processing Site $($SiteURL)" -Status "Retrieved Site Collection" -PercentComplete 100 -id 1
@@ -109,21 +136,149 @@ Function New-SPCheckedOutFilesSummary
                 foreach($Library in $Libraries)
                 {
                     Write-Progress -Activity "Processing Web $($Web.url)" -Status "Retrieving checked out files in list `'$($Library.title)`'" -PercentComplete $(($Libraries.indexof($Library)/$Libraries.count)*100) -ParentId 1
-                    $AllCheckedOutFiles = $Library.Items | Where-Object {-not ([String]::IsNullOrEmpty($_.file.CheckedOutByUser))}
+                    [Array]$AllCheckedOutFiles = $Library.Items | Where-Object {-not ([String]::IsNullOrEmpty($_.file.CheckedOutByUser))}
+                    [Array]$AllCheckedOutFilesWithNoVersion = $Library.CheckedOutFiles
                     if($AllCheckedOutFiles.count -gt 0)
                     {
+                        $UserLookup=@{}
                         foreach($file in $AllCheckedOutFiles)
                         {
                             Write-Progress -Activity "Processing checked out files" -Status "Processing file $($Web.url+$File.url)" -PercentComplete 100 -ParentId 2
                             $CheckedOutFileInformation = New-Object System.Object
                             $CheckedoutFileInformation | Add-Member -MemberType NoteProperty -Name 'SiteURL' -Value $SiteURL
+                            if($PSBoundParameters.Format -eq "HTML")
+                            {
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -name 'WebURL' -value $Web.url
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'ListID' -value $Library.ID
+                            }
                             $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'SiteOwner' -value $CurrentSPSite.owner.UserLogin
                             $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'SiteAdmins' -Value ($CurrentSPSite.RootWeb.SiteAdministrators -join ";")
                             $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'File' -value "$($Web.url)/$($File.url)"
                             $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'CheckedOutUser' -Value "$($File.File.CheckedOutByUser.DisplayName)[$($File.File.CheckedOutByUser)]"
+                            $SharePointUserSID = $File.File.CheckedOutByUser.SystemUserKey.SubString($File.File.CheckedOutByUser.SystemUserKey.LastIndexOf("|")+1)
+                            $ADExpression = "Get-ADUser -Filter 'SID -eq `$SharePointUserSID' -ErrorAction SilentlyContinue"
+                            if($MultiDomain)
+                            {
+                                $DomainSID = $SharePointUserSID.Substring(0,$SharePointUserSID.LastIndexOf("-"))
+                                $DomainName = $AllDomainInfo | where-object {$DomainSID -match $_.DomainSID} | Select-Object -ExpandProperty DomainFQDN
+                                $ADExpression  = "$($ADExpression) -Server $($DomainName)"
+                            }
+                            Try
+                            {
+                                if(-not ($UserLookup["$($SharePointUserSID)"]))
+                                {
+                                    $ADUser = Invoke-Expression $ADExpression
+                                    Remove-Variable -Name ADExpression
+                                }
+                                elseif($UserLookup["$($SharePointUserSID)"] -eq "True")
+                                {
+                                   $ADUser = $True
+                                }
+
+                            }
+                            Catch
+                            {
+                                Write-Host "Could not find user with SID $($SharePointUserSID)" -ForegroundColor Yellow
+                            }
+                            if($ADUser)
+                            {
+                                if(-not ($UserLookup["$($SharePointUserSID)"]))
+                                {
+                                    $UserLookup.Add("$($SharePointUserSID)", "True")
+                                }
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name "SharePointUserSIDFoundInAD" -value "Yes"
+                                if($ADUser)
+                                {
+                                    Remove-Variable -Name ADUser
+                                }
+                            }
+                            else
+                            {
+                                if(-not ($UserLookup["$($SharePointUserSID)"]))
+                                {
+                                    $UserLookup.Add("$($SharePointUserSID)", "False")
+                                }
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name "SharePointUserSIDFoundInAD" -value "No"
+                            }
                             $CheckedOutFileSummary.Add($CheckedOutFileInformation) | Out-Null
-                            Remove-Variable -Name CheckedOutFileInformation
+                            if($CheckedOutFileInformation)
+                            {
+                                Remove-Variable -Name CheckedOutFileInformation
+                            }
                         }
+                        foreach($File in $AllCheckedOutFilesWithNoVersion)
+                        {
+                            Write-Progress -Activity "Processing files with no checked in versions" -Status "Processing file $($Web.url+$File.url)" -PercentComplete 100 -ParentId 2
+                            $CheckedOutFileInformation = New-Object System.Object
+                            $CheckedoutFileInformation | Add-Member -MemberType NoteProperty -Name 'SiteURL' -Value $SiteURL
+                            if($PSBoundParameters.Format -eq "HTML")
+                            {
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -name 'WebURL' -value $Web.url
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'ListID' -value $Library.ID
+                            }
+                            $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'SiteOwner' -value $CurrentSPSite.owner.UserLogin
+                            $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'SiteAdmins' -Value ($CurrentSPSite.RootWeb.SiteAdministrators -join ";")
+                            if(($Web.URL -as [URI]).AbsolutePath -eq "/")
+                            {
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'File' -value "$($Web.url)/$($File.url)"
+                            }
+                            else
+                            {
+                                $CheckedOutFileInformation | add-member -MemberType NoteProperty -Name 'File' -Value "$($Web.url)/$($file.Url.Substring($Web.url.Substring($Web.url.IndexOf(`"/`", $Web.url.IndexOf(`"//`")+2)).length))"
+                            }
+                            $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name 'CheckedOutUser' -Value "$($File.CheckedOutBy.DisplayName)[$($File.CheckedOutBy.UserLogin)]"
+                            $SharePointUserSID = $File.CheckedOutBy.SystemUserKey.SubString($File.CheckedOutBy.SystemUserKey.LastIndexOf("|")+1)
+                            $ADExpression = "Get-ADUser -Filter 'SID -eq `$SharePointUserSID' -ErrorAction SilentlyContinue"
+                            if($MultiDomain)
+                            {
+                                $DomainSID = $SharePointUserSID.Substring(0,$SharePointUserSID.LastIndexOf("-"))
+                                $DomainName = $AllDomainInfo | where-object {$DomainSID -match $_.DomainSID} | Select-Object -ExpandProperty DomainFQDN
+                                $ADExpression  = "$($ADExpression) -Server $($DomainName)"
+                            }
+                            Try
+                            {
+                                if(-not ($UserLookup["$($SharePointUserSID)"]))
+                                {
+                                    $ADUser = Invoke-Expression $ADExpression
+                                    Remove-Variable -Name ADExpression
+                                }
+                                elseif($UserLookup["$($SharePointUserSID)"] -eq "True")
+                                {
+                                   $ADUser = $True
+                                }
+
+                            }
+                            Catch
+                            {
+                                Write-Host "Could not find user with SID $($SharePointUserSID)" -ForegroundColor Yellow
+                            }
+                            if($ADUser)
+                            {
+                                if(-not ($UserLookup["$($SharePointUserSID)"]))
+                                {
+                                    $UserLookup.Add("$($SharePointUserSID)", "True")
+                                }
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name "SharePointUserSIDFoundInAD" -value "Yes"
+                                if($ADUser)
+                                {
+                                    Remove-Variable -Name ADUser
+                                }
+                            }
+                            else
+                            {
+                                if(-not ($UserLookup["$($SharePointUserSID)"]))
+                                {
+                                    $UserLookup.Add("$($SharePointUserSID)", "False")
+                                }
+                                $CheckedOutFileInformation | Add-Member -MemberType NoteProperty -Name "SharePointUserSIDFoundInAD" -value "No"
+                            }
+                            $CheckedOutFileSummary.Add($CheckedOutFileInformation) | Out-Null
+                            if($CheckedOutFileInformation)
+                            {
+                                Remove-Variable -Name CheckedOutFileInformation
+                            }
+                        }
+                        Remove-Variable -name UserLookup
                     }
                     else
                     {
@@ -150,7 +305,14 @@ Function New-SPCheckedOutFilesSummary
                 {
                     $Expression = "$($Expression) -SMTPCCAddress `$PSboundParameters.SMTPCCAddress"
                 }
-                Invoke-Expression $Expression
+                Try
+                {
+                    Invoke-Expression $Expression
+                }
+                Catch
+                {
+                    Write-Warning "Encountered an error calling New-SMATReportIndividualUserPackage for user $($User)"
+                }
             }
 
         }
@@ -164,5 +326,4 @@ Function New-SPCheckedOutFilesSummary
             Invoke-Expression $Expression
         }
     }
-
 }

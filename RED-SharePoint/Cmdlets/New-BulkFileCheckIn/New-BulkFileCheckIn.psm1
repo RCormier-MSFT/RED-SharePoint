@@ -42,7 +42,14 @@ Process
             $FileswithNoCheckedInVersions = $list.CheckedOutFiles
             foreach($File in $FileswithNoCheckedInVersions)
             {
-                $Web.GetFile($File.url.Replace($web.url, "").substring(1)).Checkin($AdminMessage)
+                if(($Web.URL -as [URI]).AbsolutePath -eq "/")
+                {
+                    $Web.GetFile($File.url.Replace($web.url, "").substring(1)).Checkin($AdminMessage)
+                }
+                else
+                {
+                    $Web.GetFile($file.Url.Substring($Web.url.Substring($Web.url.IndexOf("/", $Web.url.IndexOf("//")+2)).length)).Checkin($AdminMessage)
+                }
             }
         }
         $web.dispose()
