@@ -105,7 +105,8 @@ Function New-SPCheckedOutFilesSummary
             {
                 New-Item -Path $OutputDirectory.AbsolutePath -ItemType Directory | Out-Null
             }
-            $OutputFile = (join-path $OutputDirectory.AbsolutePath "$(Get-Date -Format MM-dd-yyyy)_$($SiteURL.originalstring.Substring($SiteURL.originalstring.LastIndexOf("//")+2).replace(".","_").replace("/","_"))CheckedOutFiles_Master.csv")
+            $OutputDirectory = $OutputDirectory.LocalPath.replace("%20", " ")
+            $OutputFile = (join-path $OutputDirectory.LocalPath "$(Get-Date -Format MM-dd-yyyy)_$($SiteURL.originalstring.Substring($SiteURL.originalstring.LastIndexOf("//")+2).replace(".","_").replace("/","_"))CheckedOutFiles_Master.csv")
             if($MultiDomain -and (-not ($PSBoundParameters.MultiDomainCSV)))
             {
                 $AllDomainInfo = Get-DomainsFromADForest
@@ -131,7 +132,7 @@ Function New-SPCheckedOutFilesSummary
             {
                 Write-Progress -Activity "Processing Site $($SiteURL)" -Status "Processing Webs" -PercentComplete $(($AllWebs.Indexof($web)/$AllWebs.count)*100) -Id 1
                 Write-Progress -Activity "Processing Web $($Web.url)" -Status "Retrieving Libraries" -PercentComplete 0 -ParentId 1
-                $Libraries = $Web.Lists | Where-Object {$_ -is [Microsoft.SharePoint.SPDocumentLibrary]}
+                [Array]$Libraries = $Web.Lists | Where-Object {$_ -is [Microsoft.SharePoint.SPDocumentLibrary]}
                 Write-Progress -Activity "Processing Web $($Web.url)" -Status "Retrieved $($Libraries.count) Libraries" -PercentComplete 100 -ParentId 1
                 foreach($Library in $Libraries)
                 {

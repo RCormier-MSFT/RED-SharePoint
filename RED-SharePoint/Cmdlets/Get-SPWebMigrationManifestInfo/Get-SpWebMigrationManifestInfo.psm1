@@ -46,8 +46,15 @@ function Get-SPWebMigrationManifestInfo
         }
         Catch
         {
-            $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -Value "Welcome page $($SPWeb.RootFolder.WelcomePage) could not be found"
-            $WebEntry | Add-Member -MemberType NoteProperty -Name "Visible Web Parts on Page" -Value "Welcome page $($SPWeb.RootFolder.WelcomePage) could not be found"
+            if(-not $WebEntry.'Web Parts on Page')
+            {
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Web Parts on Page" -Value "Welcome page $($SPWeb.RootFolder.WelcomePage) could not be found"
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Visible Web Parts on Page" -Value "Welcome page $($SPWeb.RootFolder.WelcomePage) could not be found"
+            }
+            else
+            {
+                $WebEntry | Add-Member -MemberType NoteProperty -Name "Visible Web Parts on Page" -Value "Error querying visible web parts on page `'$($SPWeb.RootFolder.WelcomePage)`'"
+            }
         }
     }
     else
