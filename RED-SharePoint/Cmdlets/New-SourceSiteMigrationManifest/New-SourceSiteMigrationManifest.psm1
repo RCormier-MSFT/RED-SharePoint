@@ -107,6 +107,14 @@ function New-SourceSiteMigrationManifest
                 $SiteEntry.'Number of webs' = $WebsToProcess.Count
             }
             $ReportInformation.Add($SiteEntry) | Out-Null
+            $SiteFeatures = Get-SPFeature -Site $SPSite
+            foreach($SPFeature in $SiteFeatures)
+            {
+                $SiteFeatureEntry  = Get-SPSiteFeatureMigrationManifestInfo $SPFeature
+                $SiteFeatureEntry | Add-Member -MemberType NoteProperty -Name "Source Site URL" -Value $SPSite."URL"
+                $SiteFeatureEntry | Add-Member -MemberType NoteProperty -Name "Destination Site URL" -value $Site."Destination Site URL"
+                $ReportInformation.add($SiteFeatureEntry) | Out-Null
+            }
             foreach ($Web in $WebsToProcess)
             {
                 if($IncludeHidddenLists)

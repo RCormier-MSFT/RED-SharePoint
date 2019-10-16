@@ -101,9 +101,9 @@ Function New-SPCheckedOutFilesSummary
             {
                 $OutputDirectory = (Get-Location | Select-Object -ExpandProperty path)
             }
-            if(-not (Test-Path $OutputDirectory.AbsolutePath))
+            if(-not (Test-Path $OutputDirectory.localpath))
             {
-                New-Item -Path $OutputDirectory.AbsolutePath -ItemType Directory | Out-Null
+                New-Item -Path $OutputDirectory.localpath -ItemType Directory | Out-Null
             }
             $OutputDirectory = $OutputDirectory.LocalPath.replace("%20", " ")
             $OutputFile = (join-path $OutputDirectory.LocalPath "$(Get-Date -Format MM-dd-yyyy)_$($SiteURL.originalstring.Substring($SiteURL.originalstring.LastIndexOf("//")+2).replace(".","_").replace("/","_"))CheckedOutFiles_Master.csv")

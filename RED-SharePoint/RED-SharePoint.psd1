@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.87'
+ModuleVersion = '1.0.0.91'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -86,6 +86,7 @@ NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
                 ".\Cmdlets\Get-SPOWebMigrationValidation\Get-SPOWebMigrationValidation.psm1",
                 ".\cmdlets\Get-SPOWebRoleValidation\Get-SPOWebRoleValidation.psm1",
                 ".\cmdlets\Get-SPOWorkflowServicesManager\Get-SPOWorkflowServicesManager.psm1",
+                ".\cmdlets\Get-SPSiteFeatureMigrationManifestInfo\Get-SPSiteFeatureMigrationManifestInfo.psm1"
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebAssociatedGroupsFromMigrationManifest\Get-SPWebAssociatedGroupsFromMigrationManifest.psm1",
