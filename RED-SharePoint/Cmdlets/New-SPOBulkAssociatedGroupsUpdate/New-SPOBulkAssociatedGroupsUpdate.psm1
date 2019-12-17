@@ -8,7 +8,7 @@ function New-SPOBulkAssociatedGroupsUpdate
         if(test-path $_.localpath){$True}else{throw "`r`nFile $($_.localpath) does not exist"}
     })]
     [URI]$SourceManifest,
-    [parameter(Mandatory=$False, position=2, HelpMessage="Supply a credential object to connect to SharePOint Online")]
+    [parameter(Mandatory=$False, position=2, HelpMessage="Supply a credential object to connect to SharePoint Online")]
     [System.Management.Automation.PSCredential]$Credential
     )
 

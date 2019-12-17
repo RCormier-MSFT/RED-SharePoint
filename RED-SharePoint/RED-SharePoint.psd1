@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '1.0.0.91'
+ModuleVersion = '1.0.0.95'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -72,21 +72,24 @@ ScriptsToProcess = @(".\Utility\Scripts\Import-SharePointOnlineCSOM.ps1",
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @(".\Cmdlets\Compare-SPFeatures\Compare-SPFeatures.psm1",
+                ".\Cmdlets\Export-SPNavigationReport\Export-SPNavigationReport.psm1",
                 ".\Cmdlets\Get-CheckedOutFilesInList\Get-CheckedOutFilesInList.psm1",
                 ".\Cmdlets\Get-DomainsFromADForest\Get-DomainsFromADForest.psm1",
                 ".\Cmdlets\Get-SMATReportUniqueSites\Get-SMATReportUniqueSites.psm1",
                 ".\Cmdlets\Get-SMATReportUniqueUsers\Get-SMATReportUniqueUsers.psm1",
                 ".\cmdlets\Get-SPListMigrationManifestInfo\Get-SPListMigrationManifestInfo.psm1",
+                ".\Cmdlets\Get-SPNavigationReport\Get-SPNavigationReport.psm1",
                 ".\cmdlets\Get-SPOListMigrationValidation\Get-SPOListMigrationValidation.psm1",
                 ".\cmdlets\Get-SPOListWorkflowAssociations\Get-SPOListWorkflowAssociations.psm1",
                 ".\cmdlets\Get-SPOListWorkflowAssociationValidation\Get-SPOListWorkflowAssociationValidation.psm1",
+                ".\Cmdlets\Get-SPOSiteFeatureMigrationValidation\Get-SPOSiteFeatureMigrationValidation.psm1",
                 ".\cmdlets\Get-SPOSitePermissionMasks\Get-SPOSitePermissionMasks.psm1",
                 ".\cmdlets\Get-SPOWebGroupMappingValiation\Get-SPOWebGroupMappingValidation.psm1",
                 ".\cmdlets\Get-SPOWebGroupValidation\Get-SPOWebGroupValidation.psm1",
                 ".\Cmdlets\Get-SPOWebMigrationValidation\Get-SPOWebMigrationValidation.psm1",
                 ".\cmdlets\Get-SPOWebRoleValidation\Get-SPOWebRoleValidation.psm1",
                 ".\cmdlets\Get-SPOWorkflowServicesManager\Get-SPOWorkflowServicesManager.psm1",
-                ".\cmdlets\Get-SPSiteFeatureMigrationManifestInfo\Get-SPSiteFeatureMigrationManifestInfo.psm1"
+                ".\cmdlets\Get-SPSiteFeatureMigrationManifestInfo\Get-SPSiteFeatureMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationManifestInfo\Get-SPSiteMigrationManifestInfo.psm1",
                 ".\cmdlets\Get-SPSiteMigrationValidation\Get-SPSiteMigrationValidation.psm1",
                 ".\cmdlets\Get-SPWebAssociatedGroupsFromMigrationManifest\Get-SPWebAssociatedGroupsFromMigrationManifest.psm1",

@@ -66,6 +66,16 @@ function New-SPMigrationManifestValidationSummary
     foreach($Site in $UniqueSites)
     {
         $RelevantEntries = $SourceEntries | where-object {$_."Source Site URL" -eq $Site."Source Site URL"}
+        if(($Mode -eq "Structure") -or ($Mode -eq "FullReport"))
+        {
+            $SiteFeatureEntries = $RelevantEntries | Where-Object {$_.'type of entry' -eq "Site Collection Feature"}
+            $FeatureReport = Get-SPOSiteFeatureMigrationValidation -SiteFeatureEntries $SiteFeatureEntries -Credential $Credential
+            foreach($Entry in $FeatureReport)
+            {
+                $ValidationSummary.Add($Entry) | Out-Null
+            }
+        }
+        
         foreach($Entry in $RelevantEntries)
         {
             if($Entry.'Type of Entry' -eq "Site Collection")
