@@ -1,7 +1,7 @@
 function Export-SPNavigationReport
 {    
     param(
-        [parameter(Mandatory=$True, position=0, HelpMessage="This output of this report will be a csv format")]
+        [parameter(Mandatory=$True, position=0, HelpMessage="The format of this report will be a csv format")]
         [ValidateScript(
             {
                 if($_.localpath.endswith("csv")){$True}else{throw "`r`n`'ReportFile`' must have a csv vile extension"}
@@ -81,12 +81,15 @@ function Export-SPNavigationReport
     }
     Process
     {
-       
+        Write-Progress -Activity "Processing Sites" -Status "Starting"
         foreach($Site in $AllSites)
        {
+        Write-Progress -Activity "Processing Sites" -Status "Processing site $($Site.URL)" -PercentComplete (($AllSites.indexof($Site)+1) / ($AllSites.Count)*100)
         $SiteSummary = Get-SPNavigationReport -SiteURL $Site.URL -ReportNodes $ReportNodes
         $SiteSummary | Export-Csv -Path $ReportFile.LocalPath -NoTypeInformation -Append
        }
+       Write-Progress -Activity "Processing Sites" -Status "Processing site $($Site.URL)" -PercentComplete 100 -Completed
+        
     }
 }
     

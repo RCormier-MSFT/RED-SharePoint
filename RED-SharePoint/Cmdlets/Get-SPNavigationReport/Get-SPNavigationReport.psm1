@@ -32,7 +32,8 @@ function Get-SPNavigationReport
                     $NodeInfo | Add-Member -MemberType NoteProperty -name "Title" -Value $Node.Title
                     $NodeInfo | Add-Member -MemberType NoteProperty -Name "URL" -value $Node.Url
                     $NodeInfo | Add-Member -MemberType NoteProperty -Name "ID" -Value $Node.ID
-                    if($NavNodeSummary | Where-Object {($_.url -eq $Node.Url) -and ($_.title -eq $Node.Title) -and ($_.'Web URL' -eq $Web.url)})
+                    $NodeInfo | Add-Member -MemberType NoteProperty -Name "Parent ID" -Value $Node.ParentID
+                    if($NavNodeSummary | Where-Object {($_.url -eq $Node.Url) -and ($_.title -eq $Node.Title) -and ($_.'Web URL' -eq $Web.url) -and ($_.'Parent ID' -eq $Node.ParentID)})
                     {
                         $NodeInfo | Add-Member -MemberType NoteProperty -Name "Suspected Duplicate" -Value "True"
                     }
@@ -76,7 +77,8 @@ function Get-SPNavigationReport
                 $NodeInfo | Add-Member -MemberType NoteProperty -name "Title" -Value $Node.Title
                 $NodeInfo | Add-Member -MemberType NoteProperty -Name "URL" -value $Node.Url
                 $NodeInfo | Add-Member -MemberType NoteProperty -Name "ID" -Value $Node.ID
-                if($NavNodeSummary | Where-Object {($_.url -eq $Node.Url) -and ($_.title -eq $Node.Title) -and ($_.'Web URL' -eq $Web.url)})
+                $NodeInfo | Add-Member -MemberType NoteProperty -Name "Parent ID" -Value $Node.ParentID
+                if($NavNodeSummary | Where-Object {($_.url -eq $Node.Url) -and ($_.title -eq $Node.Title) -and ($_.'Web URL' -eq $Web.url) -and ($_.'Parent ID' -eq $Node.ParentID)})
                 {
                     $NodeInfo | Add-Member -MemberType NoteProperty -Name "Suspected Duplicate" -Value "True"
                 }
